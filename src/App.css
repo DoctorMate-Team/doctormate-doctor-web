@@ -1,0 +1,10 @@
+.css-5homae-MuiContainer-root,.css-5c1adp-MuiContainer-root {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.css-8gna6x-MuiStack-root>:not(style)~:not(style){
+  margin-top: 0 !important;
+}
