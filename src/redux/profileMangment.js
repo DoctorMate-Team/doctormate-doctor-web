@@ -8,7 +8,6 @@ export const profileManagement = createAsyncThunk(
     try {
       const formData = new FormData();
       formData.append("fullName", form.fullName);
-      // formData.append("Email", form.email);
       formData.append("phoneNumber", form.phone);
       formData.append("Specialty", form.speciality);
       formData.append("address", form.address);
@@ -17,16 +16,19 @@ export const profileManagement = createAsyncThunk(
       if (form.profilePhoto instanceof File) {
         formData.append("imageFile", form.profilePhoto);
       }
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
       const response = await axios.put(
         "https://doctormate.runasp.net/api/Profile_Management/update",
         formData,
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiMGU4MzI3YS0yMWZmLTQ5MGItNjcyNC0wOGRlMjU3NDdhOTAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJQYXRpZW50IiwiZW1haWwiOiJTYXdzYW4xNzExMS5JYnJhaGltZUBleGFtcGxlLmNvbSIsIlBob25lTnVtYmVyIjoiMDE3NzIxMDcxNzEiLCJpc3MiOiJEb2N0b3JNYXRlQVBJIiwiYXVkIjoiRG9jdG9yTWF0ZUNsaWVudCJ9.PMHGi3eOJaYdnD5l7RofQXaAYaRWPizaUQA2vtpZgq4`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
           },
         }
       );
-
+      console.log("response.data = ", response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Server Error");

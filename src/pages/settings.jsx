@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { CircularProgress } from "@mui/material";
 import {
   Box,
   Typography,
@@ -12,7 +13,9 @@ import {
   FormLabel,
   Checkbox,
 } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import NavBar from "./navBar";
+import { useNavigate } from "react-router-dom";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -24,57 +27,81 @@ import dayjs from "dayjs";
 export default function Settings() {
   const dispatch = useDispatch();
   const { loading, error, data } = useSelector((state) => state.profile);
+  const [date, setdate] = useState({ startTime: null, endTime: null });
+  const [selectedDays, setSelectedDays] = useState([]);
+  const navigate = useNavigate();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phone: "",
     speciality: "",
     address: "",
-    startTime: null,
-    endTime: null,
-    selectedDays: [],
+    workingTime: "",
     consultationFee: "",
     profilePhoto: null,
   });
-
-  const toggleDay = (day) => {
+  useEffect(() => {
     setForm((prev) => ({
       ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter((d) => d !== day)
-        : [...prev.selectedDays, day],
+      workingTime: [
+        selectedDays.join(", "),
+        `from ${date.startTime ? dayjs(date.startTime).format("h A") : ""} to ${
+          date.endTime ? dayjs(date.endTime).format("h A") : ""
+        }`,
+      ],
     }));
+  }, [selectedDays, date]);
+  const toggleDay = (day) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
   };
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setForm((prev) => ({
       ...prev,
       profilePhoto: file,
     }));
   };
+  useEffect(() => {
+    if (error) {
+      setSnackbar({
+        open: true,
+        message: error.message || "Something went wrong",
+        severity: "error",
+      });
+    }
+  }, [error]);
 
-  const handleSave = () => {
-    const daysText = form.selectedDays.join(", ");
+  function handleSave() {
+    const workingTimeString = `${selectedDays.join(", ")} from ${
+      date.startTime ? dayjs(date.startTime).format("h A") : ""
+    } to ${date.endTime ? dayjs(date.endTime).format("h A") : ""}`;
+    const formToSend = {
+      ...form,
+      workingTime: workingTimeString,
+    };
+    dispatch(profileManagement(formToSend)).unwrap();
+  }
 
-    const start = form.startTime ? dayjs(form.startTime).format("h A") : "";
-    const end = form.endTime ? dayjs(form.endTime).format("h A") : "";
-
-    dispatch(
-      profileManagement({
-        fullName: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        speciality: form.speciality,
-        address: form.address,
-        consultationFee: form.consultationFee,
-        profilePhoto: form.profilePhoto,
-        workingTime: `${daysText} from ${start} to ${end}`,
-      })
-    );
+  useEffect(() => {
+    // if (!loading && !error && data) {
+    //   navigate(-1);
+    // }
+  }, [loading, error, data, navigate]);
+  const isFormValid = () => {
+    return Object.values(form).some((value) => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    });
   };
-
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
@@ -87,6 +114,21 @@ export default function Settings() {
           padding: " 0 10px ",
         }}
       >
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={5000} // يختفي بعد 5 ثواني
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+
         {/* Header */}
         <Box
           sx={{
@@ -266,7 +308,7 @@ export default function Settings() {
               sx={{ flexWrap: "wrap", justifyContent: "space-between" }}
             >
               {days.map((day) => {
-                const checked = form.selectedDays.includes(day);
+                const checked = selectedDays.includes(day);
                 return (
                   <Box
                     key={day}
@@ -319,14 +361,14 @@ export default function Settings() {
                   <TimePicker
                     ampm
                     placeholder="09:00 AM"
-                    value={form.startTime}
+                    value={date.startTime}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                       },
                     }}
                     onChange={(newValue) =>
-                      setForm({ ...form, startTime: newValue })
+                      setdate({ ...date, startTime: newValue })
                     }
                   />
                 </LocalizationProvider>
@@ -339,9 +381,9 @@ export default function Settings() {
                 </FormLabel>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <TimePicker
-                    value={form.endTime}
+                    value={date.endTime}
                     onChange={(newValue) =>
-                      setForm({ ...form, endTime: newValue })
+                      setdate({ ...date, endTime: newValue })
                     }
                     ampm
                     placeholder="09:00 AM"
@@ -380,10 +422,24 @@ export default function Settings() {
             <Button
               variant="contained"
               backgroundColor="primary.main"
-              sx={{ color: "white", textTransform: "none" }}
+              sx={{
+                color: "white",
+                textTransform: "none",
+                position: "relative",
+              }}
               onClick={handleSave}
+              disabled={loading || !isFormValid()}
             >
-              Save Changes
+              {loading ? (
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    color: "white",
+                  }}
+                />
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </Stack>
         </Box>
