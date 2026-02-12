@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { CircularProgress } from "@mui/material";
 import {
   Box,
@@ -29,6 +29,7 @@ export default function Settings() {
   const { loading, error, data } = useSelector((state) => state.profile);
   const [date, setdate] = useState({ startTime: null, endTime: null });
   const [selectedDays, setSelectedDays] = useState([]);
+  const [disabled, setDisabled] = useState(false);
   const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -73,12 +74,17 @@ export default function Settings() {
     if (error) {
       setSnackbar({
         open: true,
-        message: error.message || "Something went wrong",
+        message: error || "Something went wrong",
         severity: "error",
       });
+    }if (data) {
+      setSnackbar({
+        open: true,
+        message: data.message,
+        severity: "success",
+      });
     }
-  }, [error]);
-
+  }, [error, data]);
   function handleSave() {
     const workingTimeString = `${selectedDays.join(", ")} from ${
       date.startTime ? dayjs(date.startTime).format("h A") : ""
@@ -89,19 +95,25 @@ export default function Settings() {
     };
     dispatch(profileManagement(formToSend)).unwrap();
   }
-
   useEffect(() => {
     // if (!loading && !error && data) {
     //   navigate(-1);
     // }
   }, [loading, error, data, navigate]);
-  const isFormValid = () => {
-    return Object.values(form).some((value) => {
-      if (value === null || value === undefined) return false;
-      if (typeof value === "string" && value.trim() === "") return false;
-      return true;
-    });
-  };
+  useEffect(() => {
+   if(form.address!==""||form.consultationFee!==""||form.email!==""||form.fullName!==""||form.phone!==""||form.profilePhoto!==""||form.speciality!==""||form.workingTime!==""){
+    setDisabled(false)
+   }else{
+    setDisabled(true)
+   }
+  },[form])
+  // const isFormValid = () => {
+  //   return Object.values(form).some((value) => {
+  //     if (value === null || value === undefined) return false;
+  //     if (typeof value === "string" && value.trim() === "") return false;
+  //     return true;
+  //   });
+  // };
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
@@ -116,9 +128,9 @@ export default function Settings() {
       >
         <Snackbar
           open={snackbar.open}
-          autoHideDuration={5000} // يختفي بعد 5 ثواني
+          autoHideDuration={2500}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         >
           <Alert
             onClose={() => setSnackbar({ ...snackbar, open: false })}
@@ -428,7 +440,7 @@ export default function Settings() {
                 position: "relative",
               }}
               onClick={handleSave}
-              disabled={loading || !isFormValid()}
+              disabled={ false}
             >
               {loading ? (
                 <CircularProgress

@@ -130,7 +130,6 @@ export default function ComPro() {
 
   const handleTimeChange = (field, value) => {
     const key = field === "start" ? "startWorkingTime" : "endWorkingTime";
-
     setFormData((prev) => ({
       ...prev,
       [key]: value,
@@ -140,7 +139,6 @@ export default function ComPro() {
       setErrors((prev) => ({ ...prev, [key]: "" }));
     }
   };
-
   const handleWorkingDaysChange = (e) => {
     const { value } = e.target;
     setFormData((prev) => ({
@@ -151,7 +149,6 @@ export default function ComPro() {
       setErrors((prev) => ({ ...prev, workingDays: "" }));
     }
   };
-
   const handleSubmit = () => {
     setFormError("");
 
