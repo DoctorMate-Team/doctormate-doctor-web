@@ -1,4 +1,4 @@
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import {
   Box,
   Typography,
@@ -18,51 +18,59 @@ import {
   MenuItem,
   IconButton,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-const patients = [
-  {
-    name: "Amir Atef",
-    id: "ID:PT001",
-    age: 25,
-    condition: "Hypertension",
-    date: "Mar 19, 2025",
-    status: "Active",
-    img: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    name: "Ahmed wael",
-    id: "ID:PT002",
-    age: 35,
-    condition: "Diabetes Type 2",
-    date: "Mar 15, 2025",
-    status: "Active",
-    img: "https://i.pravatar.cc/150?img=2",
-  },
-  {
-    name: "Aser Hazem",
-    id: "ID:PT003",
-    age: 45,
-    condition: "Asthma",
-    date: "Aug 20, 2025",
-    status: "Offline",
-    img: "https://i.pravatar.cc/150?img=3",
-  },
-  {
-    name: "Hazem Wagih",
-    id: "ID:PT004",
-    age: 29,
-    condition: "Hypertension",
-    date: "Aug 26, 2025",
-    status: "Follow-up",
-    img: "https://i.pravatar.cc/150?img=4",
-  },
-];
+import { useSelector, useDispatch } from "react-redux";
+import { patientsList } from "../../redux/patientList/patientList";
+// const patients = [
+//   {
+//     name: "Amir Atef",
+//     id: "ID:PT001",
+//     age: 25,
+//     condition: "Hypertension",
+//     date: "Mar 19, 2025",
+//     status: "Active",
+//     img: "https://i.pravatar.cc/150?img=1",
+//   },
+//   {
+//     name: "Ahmed wael",
+//     id: "ID:PT002",
+//     age: 35,
+//     condition: "Diabetes Type 2",
+//     date: "Mar 15, 2025",
+//     status: "Active",
+//     img: "https://i.pravatar.cc/150?img=2",
+//   },
+//   {
+//     name: "Aser Hazem",
+//     id: "ID:PT003",
+//     age: 45,
+//     condition: "Asthma",
+//     date: "Aug 20, 2025",
+//     status: "Offline",
+//     img: "https://i.pravatar.cc/150?img=3",
+//   },
+//   {
+//     name: "Hazem Wagih",
+//     id: "ID:PT004",
+//     age: 29,
+//     condition: "Hypertension",
+//     date: "Aug 26, 2025",
+//     status: "Follow-up",
+//     img: "https://i.pravatar.cc/150?img=4",
+//   },
+// ];
 export default function PatientList() {
+  const dispatch = useDispatch();
+  let { patients, loading, error } = useSelector((state) => state.patients);
+  useEffect(() => {
+    dispatch(patientsList());
+  }, [dispatch]);
+
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
@@ -91,12 +99,16 @@ export default function PatientList() {
               </Box>
 
               <Stack direction="row" spacing={2} alignItems="center">
-                <Button
+                {/* <Button
                   variant="contained"
-                  sx={{ bgcolor: "#4CAF8F", textTransform: "none", color:"white" }}
+                  sx={{
+                    bgcolor: "#4CAF8F",
+                    textTransform: "none",
+                    color: "white",
+                  }}
                 >
                   + Add Patient
-                </Button>
+                </Button> */}
                 <Avatar src="https://i.pravatar.cc/150?img=10" />
               </Stack>
             </Box>
@@ -113,7 +125,6 @@ export default function PatientList() {
               backgroundColor: "white",
               borderRadius: "14px",
               justifyContent: { xs: "center", md: "space-between" },
-
             }}
           >
             {/* Search */}
@@ -232,22 +243,36 @@ export default function PatientList() {
               </TableHead>
 
               <TableBody>
-                {patients.map((p, i) => (
+                {patients?.data?.patients?.slice(0, 4).map((p, i) => (
                   <TableRow key={i}>
                     <TableCell>
                       <Stack direction="row" spacing={2} alignItems="center">
-                        <Avatar src={p.img} />
+                        <Avatar src={p.imageUrl} />
                         <Box>
-                          <Typography fontWeight={600}>{p.name}</Typography>
+                          <Typography fontWeight={600}>
+                            {p.fullName ?? "_"}
+                          </Typography>
                           <Typography fontSize="12px" color="gray">
                             {p.id}
                           </Typography>
                         </Box>
                       </Stack>
                     </TableCell>
-                    <TableCell>{p.age}</TableCell>
-                    <TableCell>{p.condition}</TableCell>
-                    <TableCell>{p.date}</TableCell>
+                    <TableCell>{p.age ?? "_"}</TableCell>
+                    <TableCell>{p.lastConditionTitle ?? "_"}</TableCell>
+                    <TableCell>
+                      {p.lastVisitDate
+                        ? new Date(p.lastVisitDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "2-digit",
+                              year: "numeric",
+                            }
+                          )
+                        : "_"}
+                    </TableCell>
+
                     <TableCell>
                       <Chip
                         label={p.status}
@@ -280,19 +305,83 @@ export default function PatientList() {
                   <TableCell colSpan={6}>
                     <Stack
                       direction="row"
-                      justifyContent="flex-end"
+                      justifyContent="space-between"
                       alignItems="center"
                     >
-                      <Typography fontSize="14px">
-                        Showing 1 to 4 of 50 patients
+                      <Typography fontSize="14px" color="black">
+                        Showing 1 to{" "}
+                        {Math.round(patients?.data?.pagination?.totalItems / 4)}{" "}
+                        of {patients?.data?.pagination?.totalItems} patients
                       </Typography>
-                      <Button size="small">Previous</Button>
-                      <Button variant="outlined" size="small">
-                        1
-                      </Button>
-                      <Button size="small">2</Button>
-                      <Button size="small">3</Button>
-                      <Button size="small">Next</Button>
+                      <Box>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="#000000"
+                          fontSize="18px"
+                          fontWeight="400"
+                          sx={{ textTransform: "none", height: "35px" }}
+                        >
+                          Previous
+                        </Button>
+                        <button
+                          style={{
+                            margin: "0 10px",
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "5px",
+                            border: "2px solid #52AC8C",
+                            background: "transparent",
+                          }}
+                        >
+                          1
+                        </button>
+                        <button
+                          style={{
+                            margin: "0 10px",
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "5px",
+                            border: "2px solid #52AC8C",
+                            background: "transparent",
+                          }}
+                          disabled={
+                            patients?.data?.pagination?.totalItems > 4
+                              ? false
+                              : true
+                          }
+                        >
+                          2
+                        </button>
+                        <button
+                          style={{
+                            margin: "0 10px",
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "5px",
+                            border: "2px solid #52AC8C",
+                            background: "transparent",
+                          }}
+                          disabled={
+                            patients?.data?.pagination?.totalItems > 8
+                              ? false
+                              : true
+                          }
+                        >
+                          3
+                        </button>
+                        <Button
+                          variant="contained"
+                          disabled={
+                            patients?.data?.pagination?.totalItems > 4
+                              ? false
+                              : true
+                          }
+                          sx={{ color: "white" }}
+                        >
+                          Next
+                        </Button>
+                      </Box>
                     </Stack>
                   </TableCell>
                 </TableRow>

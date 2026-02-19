@@ -8,23 +8,25 @@ import ForgetPass from "./auth/forgetPass";
 import Otp from "./auth/Otp";
 import ResetPass from "./auth/resetPass";
 import ComPro from "./auth/compeleteProfile";
-import Dashboard from "./pages/dashboard";
-import Patients from "./pages/patients";
-import HelpSupport from "./pages/h&s";
-import DoctorProfile from "./pages/doctors";
-import Settings from "./pages/settings";
-import Schedule from "./pages/Schedule";
-import Dicom from "./pages/dicom";
-import Reports from "./pages/reports";
-import Message from "./pages/message";
+import Dashboard from "./pages/dashboard/dashboard";
+import Patients from "./pages/patients/patients"
+import HelpSupport from "./pages/help/h&s";
+import DoctorProfile from "./pages/doctorsProfile/doctors";
+import Settings from "./pages/settings/settings";
+import Schedule from "./pages/schedule/Schedule";
+import Dicom from "./pages/dicom/dicom";
+import Reports from "./pages/reports/reports";
+import Message from "./pages/message/message";
 import { Routes, Route } from "react-router-dom";
-import ImageViwer from "./pages/imageViwer";
-import PatientList from "./pages/PatientList";
-import OverView from "./pages/overView";
+import ImageViwer from "./pages/imageViwer/imageViwer";
+import PatientList from "./pages/pathientList/PatientList";
+import OverView from "./pages/overView/overView";
+import BasicModal from "./pages/schedule/Modal/MedicalModal";
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+<BasicModal/>
       <Routes>
         <Route path="/signup" element={<SignUp />} />
         <Route path="/logIn" element={<LogIn />} />

@@ -1,5 +1,5 @@
 import { Box, Stack, Typography, Grid, Card, Button, Tab } from "@mui/material";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import WestIcon from "@mui/icons-material/West";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
 import PhoneIcon from "@mui/icons-material/Phone";

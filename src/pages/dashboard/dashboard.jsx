@@ -12,7 +12,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 export default function Dashboard() {
   function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };

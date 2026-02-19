@@ -6,7 +6,7 @@ import {
   forgotPass,
   clearAuthError,
   setForgotPasswordEmail,
-} from "../redux/authSlice";
+} from "../redux/auth/authSlice";
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
@@ -35,11 +35,13 @@ export default function ForgetPass() {
       setError("Please enter a valid email");
       return;
     }
-    dispatch(setForgotPasswordEmail({
-      email: email,
-      forgotPass: true,
-    }));
-    dispatch(forgotPass(email))
+    dispatch(
+      setForgotPasswordEmail({
+        email: email,
+        forgotPass: true,
+      })
+    );
+    dispatch(forgotPass({ email: email, isForgetPass: true }))
       .unwrap()
       .then(() => {
         navigate("/logIn/forgetpass/otp");

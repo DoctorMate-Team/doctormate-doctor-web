@@ -1,8 +1,6 @@
 import React, { use, useEffect } from "react";
 import {
   Grid,
-  Card,
-  CardContent,
   Typography,
   Avatar,
   Button,
@@ -26,14 +24,15 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CircleIcon from "@mui/icons-material/Circle";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
 import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import { useDispatch, useSelector } from "react-redux";
-import { overViewSec2 } from "../redux/overView";
+// import { overViewSec2 } from "../redux/overView";
+import {overViewSec2} from "../../redux/overViews/overView"
 function createData(INFRASTRUCTURE, STATUS, UPTIME) {
   return { INFRASTRUCTURE, STATUS, UPTIME };
 }
@@ -84,7 +83,7 @@ export default function OverView() {
     {
       icon: <AttachMoneyIcon />,
       title: "Total Payments",
-      value: "$"+user?.data?.totalPayments,
+      value: "$" + user?.data?.totalPayments,
       change: "+12%",
       changeColor: "success.main",
     },

@@ -25,7 +25,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DownloadIcon from "@mui/icons-material/Download";
 import IosShareIcon from "@mui/icons-material/IosShare";
 import AddIcon from "@mui/icons-material/Add";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import WestIcon from "@mui/icons-material/West";
 const exams = [
   {
