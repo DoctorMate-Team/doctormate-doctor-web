@@ -14,13 +14,13 @@ import {
   Checkbox,
 } from "@mui/material";
 import { Snackbar, Alert } from "@mui/material";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import { useNavigate } from "react-router-dom";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { profileManagement } from "../redux/profileMangment";
+import { profileManagement } from "../../redux/doctor/profileMangment";
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 import dayjs from "dayjs";
 
@@ -29,7 +29,7 @@ export default function Settings() {
   const { loading, error, data } = useSelector((state) => state.profile);
   const [date, setdate] = useState({ startTime: null, endTime: null });
   const [selectedDays, setSelectedDays] = useState([]);
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -38,7 +38,6 @@ export default function Settings() {
   });
   const [form, setForm] = useState({
     fullName: "",
-    email: "",
     phone: "",
     speciality: "",
     address: "",
@@ -77,7 +76,8 @@ export default function Settings() {
         message: error || "Something went wrong",
         severity: "error",
       });
-    }if (data) {
+    }
+    if (data) {
       setSnackbar({
         open: true,
         message: data.message,
@@ -93,27 +93,22 @@ export default function Settings() {
       ...form,
       workingTime: workingTimeString,
     };
-    dispatch(profileManagement(formToSend)).unwrap();
+    dispatch(profileManagement(formToSend)).unwrap().then(() => {navigate("/doctorprofile");});
   }
+  
   useEffect(() => {
-    // if (!loading && !error && data) {
-    //   navigate(-1);
-    // }
-  }, [loading, error, data, navigate]);
-  useEffect(() => {
-   if(form.address!==""||form.consultationFee!==""||form.email!==""||form.fullName!==""||form.phone!==""||form.profilePhoto!==""||form.speciality!==""||form.workingTime!==""){
-    setDisabled(false)
-   }else{
-    setDisabled(true)
-   }
-  },[form])
-  // const isFormValid = () => {
-  //   return Object.values(form).some((value) => {
-  //     if (value === null || value === undefined) return false;
-  //     if (typeof value === "string" && value.trim() === "") return false;
-  //     return true;
-  //   });
-  // };
+    const allEmpty =
+      form.fullName.trim() === "" &&
+      form.phone.trim() === "" &&
+      form.speciality.trim() === "" &&
+      form.address.trim() === "" &&
+      form.consultationFee.trim() === "" &&
+      form.profilePhoto === null &&
+      selectedDays.length === 0 &&
+      date.startTime === null &&
+      date.endTime === null;
+    setDisabled(allEmpty);
+  }, [form, selectedDays, date]);
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
@@ -167,7 +162,7 @@ export default function Settings() {
                 src={
                   form.profilePhoto
                     ? URL.createObjectURL(form.profilePhoto)
-                    : "/assets/settings/image 214 (1).png"
+                    : ""
                 }
                 sx={{ width: "155px", height: "155px" }}
               />
@@ -227,7 +222,7 @@ export default function Settings() {
 
           {/* Form */}
           <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12 }}>
               <FormLabel
                 sx={{ fontWeight: "400", fontSize: "20px", color: "#555555" }}
               >
@@ -239,7 +234,7 @@ export default function Settings() {
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            {/* <Grid size={{ xs: 12, md: 6 }}>
               <FormLabel
                 sx={{ fontWeight: "400", fontSize: "20px", color: "#555555" }}
               >
@@ -250,7 +245,7 @@ export default function Settings() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
-            </Grid>
+            </Grid> */}
             <Grid size={{ xs: 12, md: 6 }}>
               <FormLabel
                 sx={{ fontWeight: "400", fontSize: "20px", color: "#555555" }}
@@ -428,7 +423,7 @@ export default function Settings() {
 
           {/* Actions */}
           <Stack direction="row" justifyContent="flex-end" spacing={2}>
-            <Button variant="outlined" color="success">
+            <Button variant="outlined" color="success" onClick={() => navigate("/doctorprofile")}>
               Cancel
             </Button>
             <Button
@@ -440,7 +435,7 @@ export default function Settings() {
                 position: "relative",
               }}
               onClick={handleSave}
-              disabled={ false}
+              disabled={disabled}
             >
               {loading ? (
                 <CircularProgress

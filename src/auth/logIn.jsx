@@ -11,11 +11,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { signIn } from "../redux/authSlice";
+import { signIn } from "../redux/auth/authSlice";
 import { Link } from "react-router";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router";
-import { forgotPass, setForgotPasswordEmail } from "../redux/authSlice";
+import { forgotPass, setForgotPasswordEmail } from "../redux/auth/authSlice";
 export default function LogIn() {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);

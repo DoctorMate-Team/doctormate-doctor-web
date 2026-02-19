@@ -5,7 +5,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { Alarm } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
-import { verfyOtp } from "../redux/authSlice";
+import { verfyOtp } from "../redux/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 export default function Otp() {

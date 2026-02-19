@@ -13,11 +13,11 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import StarIcon from "@mui/icons-material/Star";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { getDataDoctor } from "../redux/doctor";
-import { getPatient } from "../redux/doctor";
+import { getDataDoctor } from "../../redux/doctor/doctor";
+import { getPatient } from "../../redux/doctor/doctor";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 const patients = [
   { id: 1, name: "Medo Gaber", img: "https://i.pravatar.cc/150?img=11" },
@@ -286,7 +286,10 @@ export default function DoctorProfile() {
                   </Stack>
 
                   {/* Patient List */}
-                  <Stack spacing={2} sx={{height:"451px",overflowY:"auto"}}>
+                  <Stack
+                    spacing={2}
+                    sx={{ height: "451px", overflowY: "auto" }}
+                  >
                     {data?.data?.patients?.map((p, i) => (
                       <Box
                         key={p.patientId}
@@ -310,7 +313,7 @@ export default function DoctorProfile() {
                           </Typography>
                         </Box>
                       </Box>
-                    ))}        
+                    ))}
                   </Stack>
                 </Card>
               </Stack>

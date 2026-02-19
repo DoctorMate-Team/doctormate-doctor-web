@@ -1,9 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authSlice from "./authSlice";
-import overViewReducer from "./overView";
-import schuduleReducer from "./schedule";
-import profileManagementrReducer from "./profileMangment";
-import doctorReducer from "./doctor";
+import authSlice from "./auth/authSlice";
+import overViewReducer from "./overViews/overView";
+import schuduleReducer from "./schedule/schedule";
+import profileManagementrReducer from "./doctor/profileMangment";
+import doctorReducer from "./doctor/doctor";
+import patientsListReducer from "./patientList/patientList";
 //import { clearAuthError } from './authSlice'
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     schedule: schuduleReducer,
     profile: profileManagementrReducer,
     doctor: doctorReducer,
+    patients: patientsListReducer,
   },
 });

@@ -13,10 +13,10 @@ import {
 import HeadsetMicOutlinedIcon from "@mui/icons-material/HeadsetMicOutlined";
 import HelpIcon from "@mui/icons-material/Help";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChatIcon from "@mui/icons-material/Chat";
+//import ChatIcon from "@mui/icons-material/Chat";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
 export default function HelpSupport() {
   return (

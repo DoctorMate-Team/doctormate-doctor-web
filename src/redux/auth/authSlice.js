@@ -38,12 +38,22 @@ export const forgotPass = createAsyncThunk(
 // ========================== signUp thunk ==========================
 export const signUp = createAsyncThunk(
   "auth/signUp",
-  async ({ fullName, email, phoneNumber, password }, { rejectWithValue }) => {
+  async (
+    { fullName, email, phoneNumber, role, password },
+    { rejectWithValue }
+  ) => {
     try {
+      console.log("fullName = ", fullName);
+      console.log("email = ", email);
+      console.log("phoneNumber = ", phoneNumber);
+      console.log("role = ", role);
+      console.log("password = ", password);
+
       const response = await axios.post(
         "https://doctormate.runasp.net/api/Register",
-        { email, phoneNumber, password, role: "Doctor", fullName }
+        { email, phoneNumber, password, role, fullName }
       );
+      console.log("response.data = ", response.data);
       const { token, user } = response.data.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));

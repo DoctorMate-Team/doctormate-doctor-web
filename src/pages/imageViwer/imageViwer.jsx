@@ -1,5 +1,5 @@
 import { Circle, HPlusMobiledataRounded } from "@mui/icons-material";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 
 export default function ImageViewer() {

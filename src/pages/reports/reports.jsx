@@ -13,7 +13,7 @@ import {
   Stack,
   FormLabel,
 } from "@mui/material";
-import NavBar from "./navBar";
+import NavBar from "../../components/navBar";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import { useState } from "react";

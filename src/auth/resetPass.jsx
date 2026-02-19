@@ -15,14 +15,13 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { resetPass, clearAuthError } from "../redux/authSlice";
+import { resetPass, clearAuthError } from "../redux/auth/authSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 
 export default function ResetPass() {
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     upperCase: false,
@@ -38,7 +37,9 @@ export default function ResetPass() {
 
   // Redux
   const dispatch = useDispatch();
-  const { loading, error, forgotPasswordEmail } = useSelector((state) => state.auth);
+  const { loading, error, forgotPasswordEmail } = useSelector(
+    (state) => state.auth
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -59,7 +60,8 @@ export default function ResetPass() {
 
   // دوال إظهار/إخفاء الباسورد
   const handleTogglePassword = () => setShowPassword(!showPassword);
-  const handleToggleConfirmPassword = () => setShowConfirmPassword(!showConfirmPassword);
+  const handleToggleConfirmPassword = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   // دالة التحقق من صحة الباسورد
   const getPasswordValidation = (password) => ({
@@ -76,7 +78,9 @@ export default function ResetPass() {
 
     // التحقق من وجود الإيميل
     if (!forgotPasswordEmail) {
-      setLocalError("Session expired. Please restart the password reset process.");
+      setLocalError(
+        "Session expired. Please restart the password reset process."
+      );
       return;
     }
 
@@ -98,11 +102,13 @@ export default function ResetPass() {
       setLocalError("⚠️ Password does not meet all requirements");
       return;
     }
-    dispatch(resetPass({ 
-      email: forgotPasswordEmail, 
-      password, 
-      confirmPassword 
-    }))
+    dispatch(
+      resetPass({
+        email: forgotPasswordEmail,
+        password,
+        confirmPassword,
+      })
+    )
       .unwrap()
       .then(() => {
         alert("Password has been reset successfully!");
@@ -183,11 +189,13 @@ export default function ResetPass() {
       </Box>
 
       {/* RIGHT SIDE FORM */}
-      <Box sx={{ 
-        width: { xs: "100%", md: "60%" },
-        height: password === "" ? "auto" : "100vh",
-        overflow: "auto",
-      }}>
+      <Box
+        sx={{
+          width: { xs: "100%", md: "60%" },
+          height: password === "" ? "auto" : "100vh",
+          overflow: "auto",
+        }}
+      >
         <Stack
           direction={"column"}
           sx={{
@@ -204,7 +212,11 @@ export default function ResetPass() {
           />
 
           <Typography
-            sx={{ fontWeight: "500", fontSize: {xs: "20px", md: "34px"}, color: "primary.main" }}
+            sx={{
+              fontWeight: "500",
+              fontSize: { xs: "20px", md: "34px" },
+              color: "primary.main",
+            }}
           >
             Reset Password
           </Typography>
@@ -214,7 +226,7 @@ export default function ResetPass() {
               color: "#929292",
               fontSize: { xs: "12px", md: "15px" },
               fontWeight: "400",
-              marginBottom: {xs: "20px", md: "20px"},
+              marginBottom: { xs: "20px", md: "20px" },
               textAlign: "center",
             }}
           >

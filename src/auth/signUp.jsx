@@ -9,17 +9,20 @@ import {
   InputAdornment,
   Menu,
   MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useSelector, useDispatch } from "react-redux";
-import { signUp, clearAuthError } from "../redux/authSlice";
+import { signUp, clearAuthError } from "../redux/auth/authSlice";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
-import { forgotPass } from "../redux/authSlice";
+import { forgotPass } from "../redux/auth/authSlice";
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -71,7 +74,8 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState("");
-  
+  const [role, setRole] = useState("");
+
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
@@ -93,7 +97,8 @@ export default function SignUp() {
       !email ||
       !phone ||
       !password ||
-      !confirmPassword
+      !confirmPassword ||
+      !role
     ) {
       setLocalError("⚠️ Please fill in all fields");
       return;
@@ -118,16 +123,22 @@ export default function SignUp() {
     console.log("email = ", email);
     console.log("phoneNumber = ", phoneNumber);
     console.log("password = ", password);
-    dispatch(signUp({ fullName, email, phoneNumber, password }))
-      .unwrap()
-      .then(() => {
-        if (response.data.user.isVerified == false) {
-          dispatch(forgotPass(email));
-          navigate("/logIn/forgetpass/otp");
-        } else {
-          navigate("/completeProfile");
-        }
-      });
+    dispatch(signUp({ fullName, email, phoneNumber, password, role }))
+    .unwrap()
+    .then((data) => {
+      // data هو اللي بيرجع من الـ thunk بعد unwrap
+      const user = data.data.user; // حسب هيكل الرد اللي بيرجع من السيرفر
+      if (user?.isVerified === false) {
+        dispatch(forgotPass(email));
+        navigate("/logIn/forgetpass/otp");
+      } else {
+        navigate("/completeProfile");
+      }
+    })
+    .catch((err) => {
+      console.error("SignUp failed:", err);
+      // هنا ممكن تعرض رسالة للمستخدم أو تحفظها في state
+    });  
   };
   const getPasswordValidation = (password) => ({
     length: password.length >= 8,
@@ -358,7 +369,38 @@ export default function SignUp() {
               }}
             />
           </Box>
-
+          {/*role */}
+          <FormControl
+            sx={{
+              width: "90%",
+              marginTop: "20px",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "10px",
+                backgroundColor: "#F0F2F6",
+              },
+              "& .MuiInputBase-input": { fontSize: "19px", fontWeight: 300 },
+            }}
+            size="small"
+          >
+            <InputLabel id="demo-select-small-label">role</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              id="demo-select-small"
+              value={role}
+              label="role"
+              onChange={(e) => {
+                setRole(e.target.value);
+                setLocalError("");
+                dispatch(clearAuthError());
+              }}
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value={"Patient"}>Patient</MenuItem>
+              <MenuItem value={"Doctor"}>Doctor</MenuItem>
+            </Select>
+          </FormControl>
           {/* PASSWORD */}
           <TextField
             label="Password"
