@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Snackbar, Alert } from "@mui/material";
 import NavBar from "../../components/navBar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -93,9 +93,13 @@ export default function Settings() {
       ...form,
       workingTime: workingTimeString,
     };
-    dispatch(profileManagement(formToSend)).unwrap().then(() => {navigate("/doctorprofile");});
+    dispatch(profileManagement(formToSend))
+      .unwrap()
+      .then(() => {
+        navigate("/doctorprofile");
+      });
   }
-  
+
   useEffect(() => {
     const allEmpty =
       form.fullName.trim() === "" &&
@@ -148,6 +152,7 @@ export default function Settings() {
           <Typography sx={{ fontSize: "23.27px", fontWeight: "600" }}>
             Edit Profile
           </Typography>
+
           <Typography
             sx={{ fontSize: "23.27px", fontWeight: "300", color: "#616161" }}
           >
@@ -423,7 +428,11 @@ export default function Settings() {
 
           {/* Actions */}
           <Stack direction="row" justifyContent="flex-end" spacing={2}>
-            <Button variant="outlined" color="success" onClick={() => navigate("/doctorprofile")}>
+            <Button
+              variant="outlined"
+              color="success"
+              onClick={() => navigate("/doctorprofile")}
+            >
               Cancel
             </Button>
             <Button

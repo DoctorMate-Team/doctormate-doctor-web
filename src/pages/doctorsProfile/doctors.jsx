@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getDataDoctor } from "../../redux/doctor/doctor";
 import { getPatient } from "../../redux/doctor/doctor";
+import { useNavigate } from "react-router";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 const patients = [
   { id: 1, name: "Medo Gaber", img: "https://i.pravatar.cc/150?img=11" },
@@ -28,6 +29,7 @@ const patients = [
   { id: 6, name: "Magdy Afsha", img: "https://i.pravatar.cc/150?img=16" },
 ];
 export default function DoctorProfile() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, data, loading, error } = useSelector((state) => state.doctor);
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function DoctorProfile() {
       <NavBar />
       <Box
         sx={{
-          marginLeft: "212px",
+          marginLeft: "235px",
           width: "calc(100% - 212px)",
           minHeight: "100vh",
           padding: "40px 58px",
@@ -73,6 +75,9 @@ export default function DoctorProfile() {
             </Typography>
           </Stack>
           <Button
+            onClick={() => {
+              navigate("/settings");
+            }}
             variant="contained"
             sx={{ borderRadius: 3, textTransform: "none", color: "white" }}
           >

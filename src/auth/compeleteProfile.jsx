@@ -35,7 +35,6 @@ const MenuProps = {
     },
   },
 };
-
 const workingDaysList = [
   "Monday",
   "Tuesday",
@@ -45,15 +44,11 @@ const workingDaysList = [
   "Saturday",
   "Sunday",
 ];
-
 export default function ComPro() {
   const dispatch = useDispatch();
-  // const [startTime, setStartTime] = useState(null);
-  // const [endTime, setEndTime] = useState(null);
   const [image, setImage] = useState(null);
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -127,7 +122,6 @@ export default function ComPro() {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
-
   const handleTimeChange = (field, value) => {
     const key = field === "start" ? "startWorkingTime" : "endWorkingTime";
     setFormData((prev) => ({
@@ -157,7 +151,6 @@ export default function ComPro() {
       return;
     }
     setLoading(true);
-    console.log("formData.specialtyId = ", formData.specialtyId);
     dispatch(
       completeProfile({
         ...formData,

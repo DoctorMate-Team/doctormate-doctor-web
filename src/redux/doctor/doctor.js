@@ -6,12 +6,13 @@ export const getDataDoctor = createAsyncThunk(
   "doctor/getDataDoctor",
   async (_, { rejectWithValue }) => {
     try {
-      //const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         "https://doctormate.runasp.net/api/Profile_Management",
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MWIyMjVhNi0wYTM1LTQzZTMtY2MxNS0wOGRlMjQ1YTQxMDgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6ImRyLm1pY2hhZWwuc2FtdWVsbEBleGFtcGxlLmNvbSIsIlBob25lTnVtYmVyIjoiMDExNTQ4ODkzMjEiLCJpc3MiOiJEb2N0b3JNYXRlQVBJIiwiYXVkIjoiRG9jdG9yTWF0ZUNsaWVudCJ9.0FuqScF9iW-pwimXn7fu4wIUNeZbsYE5JY9FRpmtl8Q`,
+            //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3MWIyMjVhNi0wYTM1LTQzZTMtY2MxNS0wOGRlMjQ1YTQxMDgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6ImRyLm1pY2hhZWwuc2FtdWVsbEBleGFtcGxlLmNvbSIsIlBob25lTnVtYmVyIjoiMDExNTQ4ODkzMjEiLCJpc3MiOiJEb2N0b3JNYXRlQVBJIiwiYXVkIjoiRG9jdG9yTWF0ZUNsaWVudCJ9.0FuqScF9iW-pwimXn7fu4wIUNeZbsYE5JY9FRpmtl8Q`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -28,12 +29,13 @@ export const getPatient = createAsyncThunk(
   "doctor/getPatient",
   async (_, { rejectWithValue }) => {
     try {
-      //const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         "https://doctormate.runasp.net/api/doctor/patients?page=1&limit=10",
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
+            Authorization: `Bearer ${token}`,
+            //Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
           },
         }
       );

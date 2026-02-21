@@ -10,12 +10,12 @@ import {
   TextField,
   Typography,
   FormControl,
-  InputLabel,
-  Paper,
 } from "@mui/material";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
+import { useDispatch, useSelector } from "react-redux";
+import { addmedical } from "../../../redux/schedule/addMedicaql";
 const style = {
   position: "absolute",
   top: "50%",
@@ -26,33 +26,55 @@ const style = {
   height: "90vh",
   overflowY: "auto",
   borderRadius: "10px",
-  border:"none",
+  border: "none",
   scrollbarWidth: "none",
   msOverflowStyle: "none",
-
   "&::-webkit-scrollbar": {
     display: "none",
   },
 };
-
-export default function BasicModal() {
-  const [open, setOpen] = useState(true);
-  //const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const [recordType, setRecordType] = useState("Diagnosis");
+export default function BasicModal({ openMedicalModal, SetopenMedicalModal }) {
+  const selectedPatient = useSelector(
+    (state) => state.schedule.selectedPatient
+  );
+  const dispatch = useDispatch();
+  const handleClose = () => SetopenMedicalModal(false);
+  const [recordType, setRecordType] = useState("diagnosis");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
     }
   };
+  const handleSave = async () => {
+    const patientId = selectedPatient?.patient?.id;
+    try {
+      await dispatch(
+        addmedical({
+          title,
+          description,
+          recordType,
+          patientId,
+        })
+      ).unwrap();
+      SetopenMedicalModal(false);
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
   return (
     <div>
       <Modal
-        open={open}
+        open={openMedicalModal}
         onClose={handleClose}
-        sx={{ borderRadius: "10px", boxShadow: "2px 1px 2px 1 px #00000040",border:"none" }}
+        sx={{
+          borderRadius: "10px",
+          boxShadow: "2px 1px 2px 1 px #00000040",
+          border: "none",
+        }}
       >
         <Box sx={style}>
           <Stack
@@ -94,18 +116,19 @@ export default function BasicModal() {
                 onChange={(e) => setRecordType(e.target.value)}
                 sx={{ backgroundColor: "#fff", borderRadius: 2 }}
               >
-                <MenuItem value="Diagnosis">Diagnosis</MenuItem>
-                <MenuItem value="Prescription">Prescription</MenuItem>
-                <MenuItem value="Report">Report</MenuItem>
+                <MenuItem value="diagnosis">diagnosis</MenuItem>
+                <MenuItem value="lab_result">lab_result</MenuItem>
+                <MenuItem value="imaging">imaging</MenuItem>
               </Select>
             </FormControl>
-
             {/* Title */}
             <Typography fontWeight={600} mb={1}>
               Title <span style={{ color: "red" }}>*</span>
             </Typography>
 
             <TextField
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               fullWidth
               placeholder="e.g, seasonal Allergy Assessment"
               variant="outlined"
@@ -118,6 +141,8 @@ export default function BasicModal() {
             </Typography>
 
             <TextField
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               fullWidth
               multiline
               rows={4}
@@ -179,6 +204,7 @@ export default function BasicModal() {
 
               <Button
                 variant="contained"
+                onClick={handleSave}
                 sx={{
                   textTransform: "none",
                   borderRadius: 2,

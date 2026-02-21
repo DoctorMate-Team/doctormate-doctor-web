@@ -4,14 +4,12 @@ import {
   Typography,
   Button,
   Stack,
-  Chip,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  CardContent,
   Avatar,
   Grid,
 } from "@mui/material";
@@ -23,17 +21,26 @@ import {
   CalendarToday,
 } from "@mui/icons-material";
 import { Paper } from "@mui/material";
-//import TableRow from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { setSelectedPatient } from "../../redux/schedule/schedule";
 import NavBar from "../../components/navBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { appointmentsPatient } from "../../redux/schedule/schedule";
+import { useNavigate } from "react-router";
+import { appointmentsStatus } from "../../redux/schedule/schedule";
 export default function Schedule() {
-  const [time, setTime] = useState("Daily");
+  // const [time, setTime] = useState("Daily");
+  const [timeReady, settimeReady] = useState(false);
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.schedule);
-  console.log("data = ", data);
+
+  const [btnHeader, setbtnHeader] = useState({
+    Upcoming: true,
+    InProgress: false,
+    Completed: false,
+    Cancel: false,
+  });
+  const navigate = useNavigate();
   let schedule = [
     {
       time: "09:00",
@@ -119,20 +126,96 @@ export default function Schedule() {
       completedInfo: "Completed 3 hours ago",
     },
   ];
-
+  function compareTime() {
+    const dateOnly = data?.data?.appointments?.appointmentDate?.split("T")[0];
+    const fullDateTime = new Date(
+      `${dateOnly}T${data?.data?.appointments?.appointmentTime}`
+    );
+    const now = new Date();
+    if (now.getTime() === fullDateTime.getTime()) {
+      settimeReady(true);
+    } else {
+      settimeReady(false);
+    }
+  }
+  const getTimeStatus = (appointmentDate, appointmentTime) => {
+    if (!appointmentDate || !appointmentTime) return null;
+    const now = new Date();
+    const target = combineDateTime(appointmentDate, appointmentTime);
+    const diffInMs = target - now;
+    const totalHours = Math.floor(Math.abs(diffInMs) / (1000 * 60 * 60));
+    if (totalHours >= 24) return null; // لو الفرق أكتر من يوم → نخفيه
+    const hours = totalHours;
+    const minutes = Math.floor((Math.abs(diffInMs) / (1000 * 60)) % 60);
+    let parts = [];
+    if (hours > 0) parts.push(`${hours} hour${hours > 1 ? "s" : ""}`);
+    if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+    if (parts.length === 0) parts.push("less than a minute");
+    const result = parts.join(" ");
+    return diffInMs > 0 ? `In ${result}` : `${result} ago`;
+  };
+  const timeStatus = getTimeStatus(
+    data?.data?.appointments?.appointmentDate,
+    data?.data?.appointments?.appointmentTime
+  );
+  useEffect(() => {
+    setTimeout(() => {
+      compareTime();
+    }, 2000);
+    setTimeout(() => {}, 1000);
+  }, []);
+  const combineDateTime = (date, time) => {
+    const datePart = date.split("T")[0]; // ناخد YYYY-MM-DD بس
+    return new Date(`${datePart}T${time}`);
+  };
   useEffect(() => {
     dispatch(appointmentsPatient());
-    // for (let i = 0; i < data.data.length; i++) {
-    //   schedule.push({
-    //     id: i.id,
-    //     time: "09:00",
-    //     sarah: { name: "John Smith", type: "Follow-up", color: "green" },
-    //     michael: null,
-    //     emily: { name: "Maria Garcia", type: "New Patient", color: "blue" },
-    //   });
-    // }
   }, [dispatch]);
+  function updateStatus(id, status) {
+    let newStatus;
 
+    if (status === "Scheduled") {
+      newStatus = "confirmed";
+    } else if (status === "confirmed") {
+      newStatus = "inProgress";
+    } else if (status === "inProgress") {
+      newStatus = "completed";
+    } else {
+      return;
+    }
+    dispatch(
+      appointmentsStatus({
+        status: newStatus,
+        id,
+      })
+    ).then(() => {
+      dispatch(appointmentsPatient());
+    });
+  }
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    const formatted = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    return isToday ? `Today, ${formatted}` : formatted;
+  };
+  const formatTime = (timeString) => {
+    const [hours, minutes] = timeString.split(":");
+
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
   const getColors = (color) => {
     switch (color) {
       case "green":
@@ -145,13 +228,25 @@ export default function Schedule() {
         return {};
     }
   };
+  const statusStyles = {
+    scheduled: { bg: "#DBEAFE", text: "#2F5FD9", border: "#2F5FD9" },
+    confirmed: { bg: "#FEF3C7", text: "#D97706", border: "#D97706" },
+    inProgress: { bg: "#DCFCE7", text: "#16A34A", border: "#16A34A" },
+    completed: { bg: "#E5E7EB", text: "#6B7280", border: "#6B7280" },
+    cancelled: { bg: "#FEE2E2", text: "#DC2626", border: "#DC2626" },
+  };
 
+  const statusStyle = statusStyles[data?.data?.appointments.status] || {
+    bg: "#F3F4F6",
+    text: "#374151",
+    border: "#D1D5DB",
+  };
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
       <Box
         sx={{
-          marginLeft: "212px",
+          marginLeft: "235px",
           padding: "20px",
           width: "calc(100% - 212px)",
         }}
@@ -167,75 +262,110 @@ export default function Schedule() {
                 alignItems: "center",
               }}
             >
-              <Typography
-                fontWeight="bold"
-                sx={{ fontSize: "20px", fontWeight: "400" }}
-              >
-                Schedule Overview
-              </Typography>
+              <Box>
+                <Typography sx={{ fontSize: "23px", fontWeight: "500" }}>
+                  Appointments
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    fontWeight: "500",
+                    color: "#00000099",
+                  }}
+                >
+                  Mange your patient appointments and sessions
+                </Typography>
+              </Box>
               <Stack
-                direction="row"
-                spacing={2}
+                direction={"row"}
                 sx={{
-                  background: "#F3F4F6",
-                  borderRadius: "8px",
-                  p: 1,
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  color: "black",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  p: 2,
+                  border: "1px solid #00000066",
+                  borderRadius: "10px",
                 }}
               >
                 <Button
-                  onClick={() => setTime("Daily")}
+                  onClick={() => {
+                    setbtnHeader({
+                      Upcoming: true,
+                      InProgress: false,
+                      Completed: false,
+                      Cancel: false,
+                    });
+                  }}
                   sx={{
-                    color: time === "Daily" ? "white" : "black",
-                    backgroundColor:
-                      time === "Daily" ? "primary.main" : "transparent",
+                    textTransform: "none",
+                    backgroundColor: btnHeader.Upcoming
+                      ? "primary.main"
+                      : "transparent",
+                    color: btnHeader.Upcoming ? "white" : "black",
                   }}
                 >
-                  Daily
+                  Upcoming
                 </Button>
                 <Button
-                  onClick={() => setTime("Weekly")}
+                  onClick={() => {
+                    setbtnHeader({
+                      Upcoming: false,
+                      InProgress: true,
+                      Completed: false,
+                      Cancel: false,
+                    });
+                  }}
                   sx={{
-                    color: time === "Weekly" ? "white" : "black",
-                    backgroundColor:
-                      time === "Weekly" ? "primary.main" : "transparent",
+                    textTransform: "none",
+                    backgroundColor: btnHeader.InProgress
+                      ? "primary.main"
+                      : "transparent",
+                    color: btnHeader.InProgress ? "white" : "black",
                   }}
                 >
-                  Weakly
+                  In Progress
                 </Button>
                 <Button
-                  onClick={() => setTime("Monthly")}
+                  onClick={() => {
+                    setbtnHeader({
+                      Upcoming: false,
+                      InProgress: false,
+                      Completed: true,
+                      Cancel: false,
+                    });
+                  }}
                   sx={{
-                    color: time === "Monthly" ? "white" : "black",
-                    backgroundColor:
-                      time === "Monthly" ? "primary.main" : "transparent",
+                    textTransform: "none",
+                    backgroundColor: btnHeader.Completed
+                      ? "primary.main"
+                      : "transparent",
+                    color: btnHeader.Completed ? "white" : "black",
                   }}
                 >
-                  Monthly
+                  Completed
+                </Button>
+                <Button
+                  onClick={() => {
+                    setbtnHeader({
+                      Upcoming: false,
+                      InProgress: false,
+                      Completed: false,
+                      Cancel: true,
+                    });
+                  }}
+                  sx={{
+                    textTransform: "none",
+                    backgroundColor: btnHeader.Cancel
+                      ? "primary.main"
+                      : "transparent",
+                    color: btnHeader.Cancel ? "white" : "black",
+                  }}
+                >
+                  Cancel
                 </Button>
               </Stack>
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<AddIcon />}
-                sx={{
-                  mt: "20px",
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  backgroundColor: "primary.main",
-                  borderRadius: "20px",
-                  padding: "12px 24px",
-                  textTransform: "none",
-                }}
-              >
-                Book New Appointment
-              </Button>
             </Stack>
           </Card>
           {/* Timeline */}
-
           <TableContainer
             component={Paper}
             sx={{ borderRadius: "16px", marginBottom: "20px" }}
@@ -290,11 +420,9 @@ export default function Schedule() {
               </TableBody>
             </Table>
           </TableContainer>
-
           {/* Today Appointments Table */}
-
           <Grid container spacing={2}>
-            {sessionsData.map((session) => (
+            {data?.data?.appointments?.map((session) => (
               <Grid size={{ xs: 12, md: 6 }} key={session.id}>
                 <Card
                   sx={{
@@ -309,6 +437,7 @@ export default function Schedule() {
                   }}
                 >
                   <Box
+                    display={timeReady ? "" : "none"}
                     sx={{
                       width: "101px",
                       height: "19px",
@@ -327,7 +456,6 @@ export default function Schedule() {
                   >
                     Ready To Start
                   </Box>
-
                   <Stack
                     direction={"row"}
                     sx={{
@@ -344,7 +472,7 @@ export default function Schedule() {
                       }}
                     >
                       <Avatar
-                        src={session.avatar}
+                        src={session?.patient?.image}
                         sx={{ width: 70, height: 70 }}
                       />
                       <Box sx={{ ml: 2 }}>
@@ -355,7 +483,7 @@ export default function Schedule() {
                             color: "primary.main",
                           }}
                         >
-                          {session.name}
+                          {session?.patient?.name}
                         </Typography>
                         <Typography
                           sx={{
@@ -364,24 +492,36 @@ export default function Schedule() {
                             fontWeight: "500",
                           }}
                         >
-                          {session.id}
+                          ID:#{session?.patient?.id?.slice(-6)}
                         </Typography>
                       </Box>
                     </Stack>
-                    <Box
-                      sx={{
-                        width: "91px",
-                        height: "23px",
-                        backgroundColor: "#DBEAFE",
-                        color: "#2F5FD9",
-                        fontSize: "12px",
-                        fontWeight: "500",
-                        textAlign: "center",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      {session.status}
-                    </Box>
+                    {session.status && (
+                      <Box
+                        onClick={() => updateStatus(session.id, session.status)}
+                        sx={{
+                          width: "91px",
+                          height: "23px",
+                          backgroundColor:
+                            statusStyles[session.status]?.bg || "#F3F4F6",
+                          color:
+                            statusStyles[session.status]?.text || "#374151",
+                          border: `1px solid ${
+                            statusStyles[session.status]?.border || "#D1D5DB"
+                          }`,
+                          fontSize: "12px",
+                          fontWeight: "500",
+                          textAlign: "center",
+                          borderRadius: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {session.status}
+                      </Box>
+                    )}
                   </Stack>
                   <Stack direction={"row"} spacing={2} sx={{ mb: 1 }}>
                     <CalendarToday />
@@ -392,7 +532,7 @@ export default function Schedule() {
                         fontWeight: "500",
                       }}
                     >
-                      {session.date}
+                      {formatDate(session?.appointmentDate)}
                     </Typography>
                   </Stack>
                   <Stack direction={"row"} spacing={2} sx={{ mb: 1 }}>
@@ -404,7 +544,7 @@ export default function Schedule() {
                         fontWeight: "500",
                       }}
                     >
-                      {session.time}
+                      {formatTime(session.appointmentTime)}
                     </Typography>
                   </Stack>
                   <Stack direction={"row"} spacing={2} sx={{ mb: 2 }}>
@@ -416,25 +556,27 @@ export default function Schedule() {
                         fontWeight: "500",
                       }}
                     >
-                      {session.type}
+                      {session.reason}
                     </Typography>
                   </Stack>
-                  <Stack
-                    sx={{
-                      backgroundColor: "#D1FAE580",
-                      fontSize: "13px",
-                      fontWeight: "500",
-                      color: "primary.main",
-                      border: "1px solid#52AC8C",
-                      borderRadius: "10px",
-                      height: "23px",
-                      padding: "10px",
-                      mb: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    Sessionstarted 25 minetes ago
-                  </Stack>
+                  {timeStatus && (
+                    <Stack
+                      sx={{
+                        backgroundColor: "#D1FAE580",
+                        fontSize: "13px",
+                        fontWeight: "500",
+                        color: "primary.main",
+                        border: "1px solid #52AC8C",
+                        borderRadius: "10px",
+                        height: "23px",
+                        padding: "10px",
+                        mb: 1,
+                        justifyContent: "center",
+                      }}
+                    >
+                      {timeStatus}
+                    </Stack>
+                  )}
                   <Button
                     sx={{
                       width: "100%",
@@ -445,10 +587,14 @@ export default function Schedule() {
                       boxShadow: "0 1px 3px #00000040",
                       textTransform: "none",
                     }}
+                    onClick={() => {
+                      navigate("/appointmentsdetails");
+                      dispatch(setSelectedPatient(session));
+                    }}
                   >
                     View Details
                   </Button>
-                  <Stack
+                  {/* <Stack
                     direction={"row"}
                     sx={{
                       justifyContent: "space-between",
@@ -484,7 +630,7 @@ export default function Schedule() {
                       <VideoCall sx={{ mr: 1 }} />
                       Join Chat
                     </Button>
-                  </Stack>
+                  </Stack> */}
                 </Card>
               </Grid>
             ))}
