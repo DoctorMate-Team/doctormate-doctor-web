@@ -209,22 +209,6 @@ export default function ForgetPass() {
               },
             }}
           />
-            }}
-            error={Boolean(error01)}
-            helperText={error01}
-            sx={{
-              width: "90%",
-              margin: "20px 0",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
-              },
-              "& .MuiInputBase-input": {
-                fontSize: "19px",
-                fontWeight: 300,
-              },
-            }}
-          />
           <Button
             variant="contained"
             onClick={handleSendCode}
