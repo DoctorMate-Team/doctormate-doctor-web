@@ -27,6 +27,7 @@ import AddDiagnosis from "./pages/schedule/Modal/diagnosis";
 import AppointmentsDetails from "./pages/schedule/appoinmantDetals";
 import Details1 from "./pages/schedule/details1";
 import MedicalImaging from "./pages/schedule/uploadImage";
+import AppointmentScheduleTable from "./pages/schedule/timeLineAppomint";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -46,9 +47,9 @@ function App() {
         <Route path="/patients" element={<Patients />} />
         <Route path="/patients/patientlist" element={<PatientList />} />
         <Route path="/schedule" element={<Schedule />} />
-        <Route path="/details" element={<Details1 />} />
+        <Route path="/schedule/appointmentsdetails/details" element={<Details1 />} />
         <Route path="/medicalimaging" element={<MedicalImaging />} />
-        <Route path="/appointmentsdetails" element={<AppointmentsDetails />} />
+        <Route path="/schedule/appointmentsdetails" element={<AppointmentsDetails />} />
         <Route path="/dicom" element={<Dicom />} />
         <Route path="/dicom/imageViwer" element={<ImageViwer />} />
         <Route path="/reports" element={<Reports />} />
@@ -57,6 +58,10 @@ function App() {
         <Route path="/helpsupport" element={<HelpSupport />} />
         <Route path="/message" element={<Message />} />
         <Route path="/overview" element={<OverView />} />
+        <Route
+          path="/AppointmentTimeline"
+          element={<AppointmentScheduleTable />}
+        />
       </Routes>
     </ThemeProvider>
   );

@@ -6,9 +6,7 @@ import {
   Avatar,
   Button,
   Chip,
-  Card,
   Stack,
-  CardContent,
   IconButton,
   Grid,
   Paper,
@@ -27,10 +25,23 @@ import {
   Medication,
   History,
 } from "@mui/icons-material";
+import { useEffect } from "react";
 import NavBar from "../../components/navBar";
+import { useSelector, useDispatch } from "react-redux";
+import { getAppDetById } from "../../redux/schedule/appoinmantDetals";
 import BasicModal from "./Modal/MedicalModal";
 export default function Details1() {
   const [openMedicalModal, SetopenMedicalModal] = useState(false);
+  const appoinDetails = useSelector((state) => state.patientdet.dataApp);
+  const appointment = appoinDetails?.data;
+  console.log("appoinDetails: ", appoinDetails?.data);
+  const selectedPatient = useSelector(
+    (state) => state.schedule.selectedPatient
+  );
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAppDetById({ id: selectedPatient?.id }));
+  }, [selectedPatient]);
   return (
     <>
       <BasicModal
@@ -73,16 +84,16 @@ export default function Details1() {
             >
               <Box display="flex" alignItems="center" gap={2}>
                 <Avatar
-                  src="https://i.pravatar.cc/150?img=5"
+                  src={appointment?.patientImage}
                   sx={{ width: 56, height: 56 }}
                 />
                 <Box>
                   <Box display="flex" alignItems="center" gap={1} mb={0.5}>
                     <Typography variant="h6" fontWeight={600}>
-                      Emily Rodriguez
+                      {appointment?.patientName}
                     </Typography>
                     <Chip
-                      label="Ongoing"
+                      label={appointment?.status}
                       size="small"
                       sx={{
                         bgcolor: "#d1fae5",
@@ -94,7 +105,9 @@ export default function Details1() {
                     />
                   </Box>
                   <Typography variant="body2" color="text.secondary">
-                    ID : #APT-2402 • 28 Years • Female
+                    ID : #{appointment?.id?.slice(0, 8)} •{" "}
+                    {appointment?.patientAge} Years •{" "}
+                    {appointment?.patientGender}
                   </Typography>
                 </Box>
               </Box>
@@ -181,101 +194,104 @@ export default function Details1() {
             </Box>
 
             {/* Record Cards */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2,
-                mb: 2,
-                borderRadius: 2,
-                border: "1px solid #e9ecef",
-                bgcolor: "white",
-              }}
-            >
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="start"
+            {appointment?.diagnoses?.map((diag) => (
+              <Paper
+                key={diag?.id}
+                elevation={0}
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  borderRadius: 2,
+                  border: "1px solid #e9ecef",
+                  bgcolor: "white",
+                }}
               >
-                <Box display="flex" gap={2} flex={1}>
-                  <Box
-                    sx={{
-                      bgcolor: "#f8f9fa",
-                      borderRadius: 1,
-                      p: 1,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      minWidth: 40,
-                      height: 40,
-                    }}
-                  >
-                    <Description sx={{ color: "#6c757d" }} />
-                  </Box>
-                  <Box flex={1}>
-                    <Box display="flex" alignItems="center" gap={1} mb={1}>
-                      <Typography variant="h6" fontWeight={600}>
-                        General Consultation Note
-                      </Typography>
-                      <Chip
-                        label="Update"
-                        size="small"
-                        sx={{
-                          bgcolor: "#f8f9fa",
-                          color: "#6c757d",
-                          fontSize: "11px",
-                          height: 22,
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      mb={1}
-                      lineHeight={1.5}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="start"
+                >
+                  <Box display="flex" gap={2} flex={1}>
+                    <Box
+                      sx={{
+                        bgcolor: "#f8f9fa",
+                        borderRadius: 1,
+                        p: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minWidth: 40,
+                        height: 40,
+                      }}
                     >
-                      Patient reports recurring headaches and fatigue for the
-                      last 2 weeks. Recommended blood tests and Vitamin D
-                      screen.
-                    </Typography>
-                    <Box display="flex" alignItems="center" gap={2}>
+                      <Description sx={{ color: "#6c757d" }} />
+                    </Box>
+                    <Box flex={1}>
+                      <Box display="flex" alignItems="center" gap={1} mb={1}>
+                        <Typography variant="h6" fontWeight={600}>
+                          {diag?.medicalRecordTitle}
+                        </Typography>
+                        <Chip
+                          label="Update"
+                          size="small"
+                          sx={{
+                            bgcolor: "#f8f9fa",
+                            color: "#6c757d",
+                            fontSize: "11px",
+                            height: 22,
+                          }}
+                        />
+                      </Box>
                       <Typography
-                        variant="caption"
+                        variant="body2"
                         color="text.secondary"
-                        display="flex"
-                        alignItems="center"
-                        gap={0.5}
+                        mb={1}
+                        lineHeight={1.5}
                       >
-                        📅 Today, Feb 7, 2026
+                        {diag.description}
                       </Typography>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="flex"
-                        alignItems="center"
-                        gap={0.5}
-                      >
-                        👤 Dr. Sarah Johnson
-                      </Typography>
-                      <Chip
-                        label="Primary Medicine"
-                        size="small"
-                        sx={{
-                          bgcolor: "#e7f3ff",
-                          color: "#0066cc",
-                          fontSize: "11px",
-                          height: 22,
-                        }}
-                      />
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="flex"
+                          alignItems="center"
+                          gap={0.5}
+                        >
+                          📅 {new Date(diag?.createdAt).toLocaleDateString()}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="flex"
+                          alignItems="center"
+                          gap={0.5}
+                        >
+                          👤 Dr.{" "}
+                          {appointment?.doctorName
+                            ? appointment?.doctorName
+                            : "__"}
+                        </Typography>
+                        <Chip
+                          label={diag?.severity}
+                          size="small"
+                          sx={{
+                            bgcolor: "#e7f3ff",
+                            color: "#0066cc",
+                            fontSize: "11px",
+                            height: 22,
+                          }}
+                        />
+                      </Box>
                     </Box>
                   </Box>
+                  <IconButton size="small" sx={{ color: "#6c757d" }}>
+                    <MoreVert />
+                  </IconButton>
                 </Box>
-                <IconButton size="small" sx={{ color: "#6c757d" }}>
-                  <MoreVert />
-                </IconButton>
-              </Box>
-            </Paper>
-
-            <Paper
+              </Paper>
+            ))}
+            {/* <Paper
               elevation={0}
               sx={{
                 p: 2,
@@ -459,7 +475,7 @@ export default function Details1() {
                   <MoreVert />
                 </IconButton>
               </Box>
-            </Paper>
+            </Paper> */}
           </Box>
 
           {/* Bottom Section */}
@@ -483,25 +499,43 @@ export default function Details1() {
                   </Typography>
                 </Box>
                 <Box>
-                  <Box mb={2}>
-                    <Typography variant="body1" fontWeight={500}>
-                      Amoxicillin 500mg
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mb={1}>
-                      Twice daily for 7 days
-                    </Typography>
-                    <Chip
-                      label="In progress"
-                      size="small"
-                      sx={{
-                        bgcolor: "#e7f3ff",
-                        color: "#0066cc",
-                        fontSize: "12px",
-                        height: 24,
-                      }}
-                    />
-                  </Box>
-                  <Divider sx={{ my: 2 }} />
+                  {appointment?.prescriptions?.map((pres) =>
+                    pres.medications.map((med) => (
+                      <>
+                        <Box mb={2} key={med.id}>
+                          <Typography variant="body1" fontWeight={500}>
+                            {med.drugName} {med.dosage}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            mb={1}
+                          >
+                            {med.frequency}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            mb={1}
+                          >
+                            Duration: {med.durationDays} days
+                          </Typography>
+                          <Chip
+                            label="In progress"
+                            size="small"
+                            sx={{
+                              bgcolor: "#e7f3ff",
+                              color: "#0066cc",
+                              fontSize: "12px",
+                              height: 24,
+                            }}
+                          />
+                        </Box>
+                        <Divider sx={{ my: 2 }} />
+                      </>
+                    ))
+                  )}
+
                   <Box>
                     <Typography variant="body1" fontWeight={500}>
                       Paracetamol 500mg

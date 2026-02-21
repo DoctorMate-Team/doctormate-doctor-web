@@ -25,9 +25,10 @@ import { setSelectedPatient } from "../../redux/schedule/schedule";
 import NavBar from "../../components/navBar";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { appointmentsPatient } from "../../redux/schedule/schedule";
+import { appointmentsDoctor } from "../../redux/schedule/schedule";
 import { useNavigate } from "react-router";
 import { appointmentsStatus } from "../../redux/schedule/schedule";
+import AppointmentScheduleTable from "./timeLineAppomint";
 export default function Schedule() {
   // const [time, setTime] = useState("Daily");
   const [timeReady, settimeReady] = useState(false);
@@ -169,12 +170,12 @@ export default function Schedule() {
     return new Date(`${datePart}T${time}`);
   };
   useEffect(() => {
-    dispatch(appointmentsPatient());
+    dispatch(appointmentsDoctor({ page: 1, limit: 10 }));
   }, [dispatch]);
   function updateStatus(id, status) {
     let newStatus;
 
-    if (status === "Scheduled") {
+    if (status === "scheduled") {
       newStatus = "confirmed";
     } else if (status === "confirmed") {
       newStatus = "inProgress";
@@ -183,13 +184,15 @@ export default function Schedule() {
     } else {
       return;
     }
+
     dispatch(
       appointmentsStatus({
         status: newStatus,
         id,
       })
     ).then(() => {
-      dispatch(appointmentsPatient());
+      // أعد تحميل المواعيد
+      dispatch(appointmentsDoctor({ page: 1, limit: 10 }));
     });
   }
   const formatDate = (dateString) => {
@@ -235,12 +238,11 @@ export default function Schedule() {
     completed: { bg: "#E5E7EB", text: "#6B7280", border: "#6B7280" },
     cancelled: { bg: "#FEE2E2", text: "#DC2626", border: "#DC2626" },
   };
-
-  const statusStyle = statusStyles[data?.data?.appointments.status] || {
-    bg: "#F3F4F6",
-    text: "#374151",
-    border: "#D1D5DB",
-  };
+  console.log("=== Schedule Data ===");
+  console.log("data:", data);
+  console.log("appointments:", data?.data?.appointments);
+  console.log("loading:", loading);
+  console.log("error:", error);
   return (
     <Stack direction={"row"} sx={{ width: "100%" }}>
       <NavBar />
@@ -366,7 +368,7 @@ export default function Schedule() {
             </Stack>
           </Card>
           {/* Timeline */}
-          <TableContainer
+          {/* <TableContainer
             component={Paper}
             sx={{ borderRadius: "16px", marginBottom: "20px" }}
           >
@@ -419,10 +421,19 @@ export default function Schedule() {
                 ))}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> */}
+          <AppointmentScheduleTable
+            appointments={data?.data?.appointments || []}
+            loading={loading}
+            error={error}
+            onRefresh={() =>
+              dispatch(appointmentsDoctor({ page: 1, limit: 10 }))
+            }
+          />
           {/* Today Appointments Table */}
           <Grid container spacing={2}>
             {data?.data?.appointments?.map((session) => (
+             
               <Grid size={{ xs: 12, md: 6 }} key={session.id}>
                 <Card
                   sx={{
@@ -588,7 +599,7 @@ export default function Schedule() {
                       textTransform: "none",
                     }}
                     onClick={() => {
-                      navigate("/appointmentsdetails");
+                      navigate("/schedule/appointmentsdetails");
                       dispatch(setSelectedPatient(session));
                     }}
                   >

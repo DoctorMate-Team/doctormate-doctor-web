@@ -28,7 +28,8 @@ export const getAppDetById = createAsyncThunk(
     try {
       //const token = localStorage.getItem("token");
       const response = await axios.get(
-        `https://doctormate.runasp.net/api/appointments/44bc00cd-4051-44fc-b28b-5ca6d0316ef9/details`,
+        // `https://doctormate.runasp.net/api/appointments/${id}/details`,
+        `https://doctormate.runasp.net/api/appointments/${id}/details`,
         {
           headers: {
             Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,

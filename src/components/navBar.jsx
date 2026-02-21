@@ -31,9 +31,9 @@ export default function NavBar() {
             width: "80px",
             height: "70px",
             position: "absolute",
-            left: "-14px",
+            left: "-4px",
             backgroundImage: "url(/assets/navBar/L-Logo.png)",
-            backgroundSize: "cover", // تغطي البوكس كله
+            backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
           }}
@@ -81,7 +81,7 @@ export default function NavBar() {
                 backgroundColor: pathname === "/" ? "white" : "transparent",
                 padding: "10px 15px",
                 borderRadius: "20px",
-                width: "183px",
+                width: "193px",
                 alignItems: "center",
               }}
             >
@@ -180,7 +180,7 @@ export default function NavBar() {
           >
             <Box
               sx={{
-                display: pathname === "/schedule" ? "block" : "none",
+                display: pathname.includes("/schedule") ? "block" : "none",
                 position: "absolute",
                 left: "-57px",
                 width: "50px",
@@ -194,8 +194,9 @@ export default function NavBar() {
               direction={"row"}
               spacing={1}
               sx={{
-                backgroundColor:
-                  pathname === "/schedule" ? "white" : "transparent",
+                backgroundColor: pathname.includes("/schedule")
+                  ? "white"
+                  : "transparent",
                 padding: "10px 15px",
                 borderRadius: "20px",
                 width: "183px",
@@ -204,7 +205,7 @@ export default function NavBar() {
             >
               <img
                 src={
-                  pathname === "/schedule"
+                  pathname.includes("/schedule")
                     ? "/assets/navBar/carbon_event-schedule (2).png"
                     : "/assets/navBar/carbon_event-schedule (1).png"
                 }
@@ -213,8 +214,10 @@ export default function NavBar() {
               />
               <Typography
                 sx={{
-                  color: pathname === "/schedule" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  color: pathname.includes("/schedule")
+                    ? "primary.main"
+                    : "white",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
@@ -269,7 +272,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/dicom" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
@@ -324,7 +327,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/message" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
@@ -456,7 +459,7 @@ export default function NavBar() {
                         pathname === "/doctorprofile"
                           ? "primary.main"
                           : "white",
-                      fontSize: "23.27px",
+                      fontSize: "19.27px",
                       fontWeight: "400",
                     }}
                   >

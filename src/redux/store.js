@@ -15,7 +15,7 @@ export const store = configureStore({
   reducer: {
     overView: overViewReducer,
     auth: authSlice,
-    schedule: schuduleReducer,
+    schedule: schuduleReducer, 
     profile: profileManagementrReducer,
     doctor: doctorReducer,
     patients: patientsListReducer,

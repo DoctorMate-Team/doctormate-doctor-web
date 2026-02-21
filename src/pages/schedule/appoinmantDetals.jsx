@@ -33,8 +33,8 @@ import MedicalRecord from "./medicalRecord";
 import AddPrescription from "./Modal/prescriptionModal";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useSelector, useDispatch } from "react-redux";
 import { getPatientDetals } from "../../redux/schedule/appoinmantDetals";
+import { useSelector, useDispatch } from "react-redux";
 import { getAppDetById } from "../../redux/schedule/appoinmantDetals";
 //import { setSelectedPatient } from "../../redux/schedule/schedule";
 const cardStyle = {
@@ -91,9 +91,8 @@ export default function AppointmentsDetails() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getPatientDetals({ id: selectedPatient?.patient?.id }));
-    dispatch(getAppDetById({ id: selectedPatient?.patient?.id }));
+    dispatch(getAppDetById({ id: selectedPatient?.id }));
   }, [selectedPatient]);
-  console.log(selectedPatient);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -105,6 +104,11 @@ export default function AppointmentsDetails() {
     });
     return isToday ? `Today, ${formatted}` : formatted;
   };
+  console.log(
+    "appoinDetails?.data?.medicalImages ",
+    appoinDetails?.data?.medicalImages
+  );
+  console.log("appoinDetails?.data? ", appoinDetails?.data);
   return (
     <>
       <AddPrescription
@@ -460,7 +464,7 @@ export default function AppointmentsDetails() {
                 </Button>
                 <Button
                   onClick={() => {
-                    navigate("/details");
+                    navigate("/schedule/appointmentsdetails/details");
                   }}
                   sx={{
                     fontSize: { xs: "8px", md: "11px" },
@@ -486,7 +490,10 @@ export default function AppointmentsDetails() {
               </Stack>
               <Divider sx={{ mb: 2 }} />
               {uiMiddle.Medical ? (
-                <MedicalRecord appoinDetails={appoinDetails} formatDate={formatDate}/>
+                <MedicalRecord
+                  appoinDetails={appoinDetails}
+                  formatDate={formatDate}
+                />
               ) : (
                 <Box>
                   {/* Diagnoses */}
@@ -508,10 +515,9 @@ export default function AppointmentsDetails() {
                         sx={{
                           p: 2,
                           mb: 2,
-                          backgroundColor: "#FEE2E2",
+                          backgroundColor: "#EEEEEE",
                           borderRadius: 2,
-                          border: "1px solid #993C41",
-                          color: "#993C41",
+                          // border: "1px solid #993C41",
                         }}
                       >
                         <Stack
@@ -526,6 +532,7 @@ export default function AppointmentsDetails() {
                               sx={{
                                 fontSize: "10",
                                 fontWeight: "400",
+                                color: "#464646",
                               }}
                             >
                               Acute Bronchitis
@@ -534,6 +541,7 @@ export default function AppointmentsDetails() {
                               sx={{
                                 fontSize: "8",
                                 fontWeight: "300",
+                                color: "#616161",
                               }}
                             >
                               Diagnosed : {formatDate(item.createdAt)}
@@ -588,7 +596,7 @@ export default function AppointmentsDetails() {
                         flexWrap: "wrap",
                       }}
                     >
-                      {patientDetails?.data?.medicalImages?.map((item) => (
+                      {appoinDetails?.data?.medicalImages?.map((item) => (
                         <Box
                           key={item.id}
                           sx={{
@@ -600,7 +608,7 @@ export default function AppointmentsDetails() {
                           }}
                         >
                           <img
-                            src={item.imageUrl}
+                            src={item.viewerUrl}
                             alt=""
                             style={{ width: "100%", height: "100%" }}
                           />
