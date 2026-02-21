@@ -51,7 +51,6 @@ export default function LogIn() {
     dispatch(signIn({ emailOrPhone: email, password }))
       .unwrap()
       .then((response) => {
-        console.log("response = ", response);
         if (response.data.user.isVerified == false) {
           dispatch(
             setForgotPasswordEmail({

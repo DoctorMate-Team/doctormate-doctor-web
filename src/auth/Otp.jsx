@@ -19,11 +19,6 @@ export default function Otp() {
   );
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   if (!email) {
-  //     navigate("/logIn/forgetpass", { replace: true });
-  //   }
-  // }, [email, navigate]);
   useEffect(() => {
     let interval = null;
     if (isActive && timeLeft > 0) {
@@ -54,18 +49,21 @@ export default function Otp() {
     dispatch(verfyOtp({ email, otp, isForgetPass: forgotPass }))
       .unwrap()
       .then(() => {
-        if (user) {
-          const user = JSON.parse(localStorage.getItem("user"));
-          user.isVerified = true;
-          localStorage.setItem("user", JSON.stringify(user));
+        let user = JSON.parse(localStorage.getItem("user"));
+        user = {
+          ...user,
+          isVerified: true,
+        };
+        localStorage.setItem("user", JSON.stringify(user));
+        if (forgotPass) {
+          navigate("/logIn/forgetpass/otp/resetpass");
+          return;
         }
-        if (
-          JSON.parse(localStorage.getItem("user")).isCompletedProfile == false
-        ) {
+        if (!user.isCompletedProfile) {
           navigate("/compeleteprofile");
-        } else {
-          navigate("/");
+          return;
         }
+        navigate("/");
       })
       .catch((error) => {
         alert(error || "Invalid OTP code. Please try again.");

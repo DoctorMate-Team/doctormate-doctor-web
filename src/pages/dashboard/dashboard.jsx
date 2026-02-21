@@ -28,7 +28,7 @@ export default function Dashboard() {
       <Box
         sx={{
           backgroundColor: "#F0F2F6",
-          marginLeft: "212px",
+          marginLeft: "235px",
           paddingBottom: "20px",
         }}
       >

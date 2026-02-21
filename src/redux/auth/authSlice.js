@@ -10,6 +10,7 @@ export const signIn = createAsyncThunk(
         "https://doctormate.runasp.net/api/Login",
         { emailOrPhone, password }
       );
+     
       const { token, user } = response.data.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
@@ -24,9 +25,10 @@ export const forgotPass = createAsyncThunk(
   "auth/forgotpass",
   async ({ email, isForgetPass }, { rejectWithValue }) => {
     try {
+     
       const response = await axios.post(
         "https://doctormate.runasp.net/api/Otp/send",
-        { email, isForgetPass }
+        { email, isForgetPass: false }
       );
       return response.data;
     } catch (error) {
@@ -43,12 +45,6 @@ export const signUp = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log("fullName = ", fullName);
-      console.log("email = ", email);
-      console.log("phoneNumber = ", phoneNumber);
-      console.log("role = ", role);
-      console.log("password = ", password);
-
       const response = await axios.post(
         "https://doctormate.runasp.net/api/Register",
         { email, phoneNumber, password, role, fullName }
@@ -68,6 +64,9 @@ export const signUp = createAsyncThunk(
 export const verfyOtp = createAsyncThunk(
   "auth/verfyOtp",
   async ({ email, otp, isForgetPass }, { rejectWithValue }) => {
+    console.log("verfyOtp email: ", email);
+    console.log("verfyOtp otp  ", otp);
+    console.log("verfyOtp isForgetPass: ", isForgetPass);
     try {
       const response = await axios.post(
         "https://doctormate.runasp.net/api/Otp/verify",
@@ -85,9 +84,12 @@ export const resetPass = createAsyncThunk(
   "auth/logoutUser",
   async ({ email, password, confirmPassword }, { rejectWithValue }) => {
     try {
+     
+      const getEmail = email.email;
+
       const response = await axios.post(
         "https://doctormate.runasp.net/api/PasswordReset/reset-password",
-        { email, newPassword: password, confirmPassword }
+        { email: getEmail, newPassword: password, confirmPassword }
       );
       return response.data;
     } catch (error) {
@@ -103,13 +105,14 @@ export const completeProfile = createAsyncThunk(
     console.log("profileData = ", profileData);
     try {
       const token = localStorage.getItem("token");
+      console.log("token", token);
       const response = await axios.post(
         "https://doctormate.runasp.net/api/CompleteProfile/complete",
         profileData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+           
           },
         }
       );
@@ -172,7 +175,10 @@ const authSlice = createSlice({
       .addCase(forgotPass.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
-        state.forgotPasswordEmail = action.meta.arg;
+        state.forgotPasswordEmail = {
+          email: action.meta.arg.email,
+          forgotPass: action.meta.arg.isForgetPass,
+        };
       })
       .addCase(forgotPass.rejected, (state, action) => {
         state.loading = false;
@@ -232,7 +238,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // fetch user
+    // complete user
     builder
       .addCase(completeProfile.pending, (state) => {
         state.loading = true;

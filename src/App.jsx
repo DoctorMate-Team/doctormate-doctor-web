@@ -9,7 +9,7 @@ import Otp from "./auth/Otp";
 import ResetPass from "./auth/resetPass";
 import ComPro from "./auth/compeleteProfile";
 import Dashboard from "./pages/dashboard/dashboard";
-import Patients from "./pages/patients/patients"
+import Patients from "./pages/patients/patients";
 import HelpSupport from "./pages/help/h&s";
 import DoctorProfile from "./pages/doctorsProfile/doctors";
 import Settings from "./pages/settings/settings";
@@ -22,11 +22,20 @@ import ImageViwer from "./pages/imageViwer/imageViwer";
 import PatientList from "./pages/pathientList/PatientList";
 import OverView from "./pages/overView/overView";
 import BasicModal from "./pages/schedule/Modal/MedicalModal";
+import AddPrescription from "./pages/schedule/Modal/prescriptionModal";
+import AddDiagnosis from "./pages/schedule/Modal/diagnosis";
+import AppointmentsDetails from "./pages/schedule/appoinmantDetals";
+import Details1 from "./pages/schedule/details1";
+import MedicalImaging from "./pages/schedule/uploadImage";
+import AppointmentScheduleTable from "./pages/schedule/timeLineAppomint";
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-<BasicModal/>
+      {/* <BasicModal /> */}
+      {/* <AddPrescription /> 
+      <AddDiagnosis />*/}
+
       <Routes>
         <Route path="/signup" element={<SignUp />} />
         <Route path="/logIn" element={<LogIn />} />
@@ -38,6 +47,9 @@ function App() {
         <Route path="/patients" element={<Patients />} />
         <Route path="/patients/patientlist" element={<PatientList />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/schedule/appointmentsdetails/details" element={<Details1 />} />
+        <Route path="/medicalimaging" element={<MedicalImaging />} />
+        <Route path="/schedule/appointmentsdetails" element={<AppointmentsDetails />} />
         <Route path="/dicom" element={<Dicom />} />
         <Route path="/dicom/imageViwer" element={<ImageViwer />} />
         <Route path="/reports" element={<Reports />} />
@@ -46,6 +58,10 @@ function App() {
         <Route path="/helpsupport" element={<HelpSupport />} />
         <Route path="/message" element={<Message />} />
         <Route path="/overview" element={<OverView />} />
+        <Route
+          path="/AppointmentTimeline"
+          element={<AppointmentScheduleTable />}
+        />
       </Routes>
     </ThemeProvider>
   );

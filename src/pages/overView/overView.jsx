@@ -117,7 +117,7 @@ export default function OverView() {
       <Box
         sx={{
           backgroundColor: "#F0F2F6",
-          marginLeft: "212px",
+          marginLeft: "235px",
           width: "calc(100% - 212px)",
           minHeight: "100vh",
           padding: "0 15px",

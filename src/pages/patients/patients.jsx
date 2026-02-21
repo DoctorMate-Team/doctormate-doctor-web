@@ -41,7 +41,7 @@ export default function Patients() {
       <Box
         sx={{
           backgroundColor: "#F0F2F6",
-          marginLeft: "212px",
+          marginLeft: "235px",
           padding: { xs: "10px", md: "20px" },
         }}
       >

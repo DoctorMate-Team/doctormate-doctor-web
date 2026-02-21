@@ -8,7 +8,7 @@ export default function NavBar() {
   return (
     <Box
       sx={{
-        width: "212px",
+        width: "235px",
         height: "100%",
         backgroundColor: "primary.main",
         position: "fixed",
@@ -28,19 +28,16 @@ export default function NavBar() {
       >
         <Box
           sx={{
-            backgroundColor: "white",
-            borderRadius: "2px",
-            width: "32px",
-            height: "26px",
-            padding: "2px",
+            width: "80px",
+            height: "70px",
+            position: "absolute",
+            left: "-4px",
+            backgroundImage: "url(/assets/navBar/L-Logo.png)",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
           }}
-        >
-          <img
-            src="/assets/dashboard/H-Logo 1 (1).png"
-            alt=""
-            style={{ width: "100%", height: "100%" }}
-          />
-        </Box>
+        ></Box>
         <Typography
           sx={{ color: "#FFFFFF", fontSize: "20px", fontWeight: "500" }}
         >
@@ -62,7 +59,7 @@ export default function NavBar() {
             sx={{
               justifyContent: "center",
               alignItems: "center",
-              marginBottom: "5px",
+              margin: "10px 0",
               position: "relative",
             }}
           >
@@ -84,7 +81,7 @@ export default function NavBar() {
                 backgroundColor: pathname === "/" ? "white" : "transparent",
                 padding: "10px 15px",
                 borderRadius: "20px",
-                width: "183px",
+                width: "193px",
                 alignItems: "center",
               }}
             >
@@ -101,7 +98,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "22.27px",
                   fontWeight: "400",
                 }}
               >
@@ -110,7 +107,7 @@ export default function NavBar() {
             </Stack>
           </Stack>
         </Link>
-        <Link to="/doctorprofile" style={{ textDecoration: "none" }}>
+        <Link to="/patients/patientlist" style={{ textDecoration: "none" }}>
           <Stack
             direction={"row"}
             sx={{
@@ -122,7 +119,8 @@ export default function NavBar() {
           >
             <Box
               sx={{
-                display: pathname === "/doctorprofile" ? "block" : "none",
+                display:
+                  pathname === "/patients/patientlist" ? "block" : "none",
                 position: "absolute",
                 left: "-57px",
                 width: "50px",
@@ -137,62 +135,9 @@ export default function NavBar() {
               spacing={1}
               sx={{
                 backgroundColor:
-                  pathname === "/doctorprofile" ? "white" : "transparent",
-                padding: "10px 15px",
-                borderRadius: "20px",
-                width: "183px",
-                alignItems: "center",
-              }}
-            >
-              <GroupIcon
-                sx={{
-                  width: "24px",
-                  height: "24px",
-                  color:
-                    pathname === "/doctorprofile" ? "primary.main" : "white",
-                }}
-              />
-              <Typography
-                sx={{
-                  color:
-                    pathname === "/doctorprofile" ? "primary.main" : "white",
-                  fontSize: "23.27px",
-                  fontWeight: "400",
-                }}
-              >
-                Doctors
-              </Typography>
-            </Stack>
-          </Stack>
-        </Link>
-        <Link to="/patients" style={{ textDecoration: "none" }}>
-          <Stack
-            direction={"row"}
-            sx={{
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: "5px",
-              position: "relative",
-            }}
-          >
-            <Box
-              sx={{
-                display: pathname === "/patients" ? "block" : "none",
-                position: "absolute",
-                left: "-57px",
-                width: "50px",
-                background: "white",
-                borderRadius: "20px",
-                height: "67px",
-              }}
-            />
-
-            <Stack
-              direction={"row"}
-              spacing={1}
-              sx={{
-                backgroundColor:
-                  pathname === "/patients" ? "white" : "transparent",
+                  pathname === "/patients/patientlist"
+                    ? "white"
+                    : "transparent",
                 padding: "10px 15px",
                 borderRadius: "20px",
                 width: "183px",
@@ -201,7 +146,7 @@ export default function NavBar() {
             >
               <img
                 src={
-                  pathname === "/patients"
+                  pathname === "/patients/patientlist"
                     ? "/assets/navBar/Group (4).png"
                     : "/assets/navBar/Group (3).png"
                 }
@@ -210,8 +155,11 @@ export default function NavBar() {
               />
               <Typography
                 sx={{
-                  color: pathname === "/patients" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  color:
+                    pathname === "/patients/patientlist"
+                      ? "primary.main"
+                      : "white",
+                  fontSize: "22.27px",
                   fontWeight: "400",
                 }}
               >
@@ -226,13 +174,13 @@ export default function NavBar() {
             sx={{
               justifyContent: "center",
               alignItems: "center",
-              marginBottom: "5px",
+              margin: "10px 0",
               position: "relative",
             }}
           >
             <Box
               sx={{
-                display: pathname === "/schedule" ? "block" : "none",
+                display: pathname.includes("/schedule") ? "block" : "none",
                 position: "absolute",
                 left: "-57px",
                 width: "50px",
@@ -246,8 +194,9 @@ export default function NavBar() {
               direction={"row"}
               spacing={1}
               sx={{
-                backgroundColor:
-                  pathname === "/schedule" ? "white" : "transparent",
+                backgroundColor: pathname.includes("/schedule")
+                  ? "white"
+                  : "transparent",
                 padding: "10px 15px",
                 borderRadius: "20px",
                 width: "183px",
@@ -256,7 +205,7 @@ export default function NavBar() {
             >
               <img
                 src={
-                  pathname === "/schedule"
+                  pathname.includes("/schedule")
                     ? "/assets/navBar/carbon_event-schedule (2).png"
                     : "/assets/navBar/carbon_event-schedule (1).png"
                 }
@@ -265,17 +214,19 @@ export default function NavBar() {
               />
               <Typography
                 sx={{
-                  color: pathname === "/schedule" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  color: pathname.includes("/schedule")
+                    ? "primary.main"
+                    : "white",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
-                Schedule
+                Appointments
               </Typography>
             </Stack>
           </Stack>
         </Link>
-        <Link to="/dicom" style={{ textDecoration: "none" }}>
+        {/* <Link to="/dicom" style={{ textDecoration: "none" }}>
           <Stack
             direction={"row"}
             sx={{
@@ -321,7 +272,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/dicom" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
@@ -376,7 +327,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/message" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "19.27px",
                   fontWeight: "400",
                 }}
               >
@@ -384,14 +335,14 @@ export default function NavBar() {
               </Typography>
             </Stack>
           </Stack>
-        </Link>
+        </Link> */}
         <Link to="/reports" style={{ textDecoration: "none" }}>
           <Stack
             direction={"row"}
             sx={{
               justifyContent: "center",
               alignItems: "center",
-              marginBottom: "5px",
+              margin: "10px 0",
               position: "relative",
             }}
           >
@@ -431,7 +382,7 @@ export default function NavBar() {
               <Typography
                 sx={{
                   color: pathname === "/reports" ? "primary.main" : "white",
-                  fontSize: "23.27px",
+                  fontSize: "22.27px",
                   fontWeight: "400",
                 }}
               >
@@ -457,13 +408,73 @@ export default function NavBar() {
           }}
         >
           <Box>
+            <Link to="/doctorprofile" style={{ textDecoration: "none" }}>
+              <Stack
+                direction={"row"}
+                sx={{
+                  justifyContent: "center",
+                  alignItems: "center",
+
+                  position: "relative",
+                  mt: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: pathname === "/doctorprofile" ? "block" : "none",
+                    position: "absolute",
+                    left: "-57px",
+                    width: "50px",
+                    background: "white",
+                    borderRadius: "20px",
+                    height: "67px",
+                  }}
+                />
+
+                <Stack
+                  direction={"row"}
+                  spacing={1}
+                  sx={{
+                    backgroundColor:
+                      pathname === "/doctorprofile" ? "white" : "transparent",
+                    padding: "10px 15px",
+                    borderRadius: "20px",
+                    width: "183px",
+                    alignItems: "center",
+                  }}
+                >
+                  <GroupIcon
+                    sx={{
+                      width: "24px",
+                      height: "24px",
+                      color:
+                        pathname === "/doctorprofile"
+                          ? "primary.main"
+                          : "white",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      color:
+                        pathname === "/doctorprofile"
+                          ? "primary.main"
+                          : "white",
+                      fontSize: "19.27px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    Profile
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Link>
             <Link to="/settings" style={{ textDecoration: "none" }}>
               <Stack
                 direction={"row"}
                 sx={{
                   justifyContent: "center",
                   alignItems: "center",
-                  margin: "10px 0",
+
                   position: "relative",
                 }}
               >
@@ -518,7 +529,7 @@ export default function NavBar() {
                 sx={{
                   justifyContent: "center",
                   alignItems: "center",
-                  margin: "10px 0",
+
                   position: "relative",
                 }}
               >

@@ -11,7 +11,7 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
@@ -74,7 +74,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [localError, setLocalError] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("Doctor");
 
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -119,26 +119,22 @@ export default function SignUp() {
 
     const fullName = `${firstName} ${lastName}`;
     const phoneNumber = `${phone}`;
-    console.log("fullName = ", fullName);
-    console.log("email = ", email);
-    console.log("phoneNumber = ", phoneNumber);
-    console.log("password = ", password);
     dispatch(signUp({ fullName, email, phoneNumber, password, role }))
-    .unwrap()
-    .then((data) => {
-      // data هو اللي بيرجع من الـ thunk بعد unwrap
-      const user = data.data.user; // حسب هيكل الرد اللي بيرجع من السيرفر
-      if (user?.isVerified === false) {
-        dispatch(forgotPass(email));
-        navigate("/logIn/forgetpass/otp");
-      } else {
-        navigate("/completeProfile");
-      }
-    })
-    .catch((err) => {
-      console.error("SignUp failed:", err);
-      // هنا ممكن تعرض رسالة للمستخدم أو تحفظها في state
-    });  
+      .unwrap()
+      .then((data) => {
+        // data هو اللي بيرجع من الـ thunk بعد unwrap
+        const user = data.data.user; // حسب هيكل الرد اللي بيرجع من السيرفر
+        if (user?.isVerified === false) {
+          dispatch(forgotPass({ email, isForgetPass: false }));
+          navigate("/logIn/forgetpass/otp");
+        } else {
+          navigate("/completeProfile");
+        }
+      })
+      .catch((err) => {
+        console.error("SignUp failed:", err);
+        // هنا ممكن تعرض رسالة للمستخدم أو تحفظها في state
+      });
   };
   const getPasswordValidation = (password) => ({
     length: password.length >= 8,
@@ -208,7 +204,7 @@ export default function SignUp() {
         sx={{
           width: { xs: "100%", md: "60%" },
           height: password === "" ? "auto" : "100vh",
-          overflow: "auto",
+          overflowY: "auto",
         }}
       >
         <Stack
@@ -223,7 +219,7 @@ export default function SignUp() {
           <img
             src="/assets/auth/H-Logo 1.png"
             alt=""
-            style={{ width: "98px", height: "86px" }}
+            style={{ width: "98px", height: "80px" }}
           />
           <Typography
             sx={{
@@ -238,7 +234,7 @@ export default function SignUp() {
           {/* FIRST + LAST NAME */}
           <Stack
             direction={"row"}
-            sx={{ width: "90%", marginTop: "15px" }}
+            sx={{ width: "90%", marginTop: "10px" }}
             spacing={2}
           >
             <TextField
@@ -251,7 +247,7 @@ export default function SignUp() {
               }}
               fullWidth
               sx={{
-                marginTop: "20px",
+                marginTop: "10px",
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "10px",
                   backgroundColor: "#F0F2F6",
@@ -269,7 +265,7 @@ export default function SignUp() {
               }}
               fullWidth
               sx={{
-                marginTop: "20px",
+                marginTop: "10px",
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "10px",
                   backgroundColor: "#F0F2F6",
@@ -291,7 +287,7 @@ export default function SignUp() {
             }}
             sx={{
               width: "90%",
-              marginTop: "20px",
+              marginTop: "10px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "10px",
                 backgroundColor: "#F0F2F6",
@@ -369,38 +365,6 @@ export default function SignUp() {
               }}
             />
           </Box>
-          {/*role */}
-          <FormControl
-            sx={{
-              width: "90%",
-              marginTop: "20px",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
-              },
-              "& .MuiInputBase-input": { fontSize: "19px", fontWeight: 300 },
-            }}
-            size="small"
-          >
-            <InputLabel id="demo-select-small-label">role</InputLabel>
-            <Select
-              labelId="demo-select-small-label"
-              id="demo-select-small"
-              value={role}
-              label="role"
-              onChange={(e) => {
-                setRole(e.target.value);
-                setLocalError("");
-                dispatch(clearAuthError());
-              }}
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              <MenuItem value={"Patient"}>Patient</MenuItem>
-              <MenuItem value={"Doctor"}>Doctor</MenuItem>
-            </Select>
-          </FormControl>
           {/* PASSWORD */}
           <TextField
             label="Password"
@@ -414,7 +378,7 @@ export default function SignUp() {
             }}
             sx={{
               width: "90%",
-              marginTop: "20px",
+              marginTop: "14px",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "10px",
                 backgroundColor: "#F0F2F6",
@@ -493,7 +457,7 @@ export default function SignUp() {
             }}
             sx={{
               width: "90%",
-              margin: "20px 0",
+              margin: "10px 0",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "10px",
                 backgroundColor: "#F0F2F6",
@@ -556,7 +520,7 @@ export default function SignUp() {
             alignItems={"center"}
             justifyContent={"start"}
             sx={{ width: "90%" }}
-            marginTop={"20px"}
+            marginTop={"10px"}
           >
             <FormControlLabel
               control={
