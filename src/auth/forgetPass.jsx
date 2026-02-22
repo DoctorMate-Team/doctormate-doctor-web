@@ -1,6 +1,7 @@
-import { Stack, Box, Typography, TextField, Button } from "@mui/material";
+import { Stack, Box, Typography, TextField, Button, InputAdornment, Alert, Fade } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import EmailIcon from "@mui/icons-material/Email";
 import { useSelector, useDispatch } from "react-redux";
 import {
   forgotPass,
@@ -13,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 export default function ForgetPass() {
   const [email, setEmail] = useState("");
   const [error01, setError] = useState("");
+  const [emailFocused, setEmailFocused] = useState(false);
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -21,11 +23,13 @@ export default function ForgetPass() {
   };
   useEffect(() => {
     if (error) {
-      alert(error);
+      setError(error);
       dispatch(clearAuthError());
     }
   }, [error, dispatch]);
   const handleSendCode = () => {
+    setError("");
+    
     if (!email) {
       setError("Please enter your email");
       return;
@@ -119,44 +123,89 @@ export default function ForgetPass() {
           />
           <Typography
             sx={{
-              fontWeight: "500",
-              fontSize: { xs: "20px", md: "34px" },
+              fontWeight: "600",
+              fontSize: { xs: "24px", md: "36px" },
               color: "primary.main",
+              mb: 1,
             }}
           >
-            Forgot your password ?
+            Forgot your password?
           </Typography>
           <Typography
             sx={{
-              color: "#929292",
-              fontSize: { xs: "12px", md: "15px" },
+              color: "text.secondary",
+              fontSize: { xs: "14px", md: "16px" },
               fontWeight: "400",
               textAlign: "center",
+              mb: 3,
             }}
           >
             Enter your email and we'll send a 6-digit verification code
-            instantly.
           </Typography>
+
+          {/* Error Alert */}
+          {error01 && (
+            <Fade in={!!error01}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  width: "90%", 
+                  mb: 2,
+                  borderRadius: "10px",
+                }}
+                onClose={() => setError("")}
+              >
+                {error01}
+              </Alert>
+            </Fade>
+          )}
+
           <TextField
-            label="Email"
+            label="Email Address"
             type="email"
             value={email}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
             onChange={(e) => {
               setEmail(e.target.value);
               setError("");
             }}
-            error={Boolean(error01)}
-            helperText={error01}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleSendCode();
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon 
+                    sx={{ 
+                      color: emailFocused ? "primary.main" : "action.disabled",
+                      transition: "color 0.3s"
+                    }} 
+                  />
+                </InputAdornment>
+              ),
+            }}
             sx={{
               width: "90%",
-              margin: "20px 0",
+              marginTop: "10px",
               "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "#F3F4F6",
+                },
+                "&.Mui-focused": {
+                  backgroundColor: "white",
+                  boxShadow: "0 0 0 3px rgba(82, 172, 140, 0.1)",
+                },
               },
               "& .MuiInputBase-input": {
-                fontSize: "19px",
-                fontWeight: 300,
+                fontSize: "16px",
+                fontWeight: 400,
+                padding: "14px 14px 14px 0",
               },
             }}
           />

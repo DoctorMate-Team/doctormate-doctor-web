@@ -12,10 +12,16 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Alert,
+  Fade,
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import LockIcon from "@mui/icons-material/Lock";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useSelector, useDispatch } from "react-redux";
 import { signUp, clearAuthError } from "../redux/auth/authSlice";
@@ -223,13 +229,43 @@ export default function SignUp() {
           />
           <Typography
             sx={{
-              fontWeight: 500,
-              fontSize: { xs: "24px", md: "34px" },
+              fontWeight: 600,
+              fontSize: { xs: "28px", md: "36px" },
               color: "primary.main",
+              mb: 1,
             }}
           >
             Create an account
           </Typography>
+          <Typography
+            sx={{
+              fontSize: { xs: "14px", md: "16px" },
+              color: "text.secondary",
+              mb: 2,
+            }}
+          >
+            Join DoctorMate today
+          </Typography>
+
+          {/* Error Alert */}
+          {(localError || error) && (
+            <Fade in={!!(localError || error)}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  width: "90%", 
+                  mb: 2,
+                  borderRadius: "10px",
+                }}
+                onClose={() => {
+                  setLocalError("");
+                  dispatch(clearAuthError());
+                }}
+              >
+                {localError || error}
+              </Alert>
+            </Fade>
+          )}
 
           {/* FIRST + LAST NAME */}
           <Stack

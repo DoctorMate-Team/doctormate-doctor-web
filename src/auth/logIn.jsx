@@ -6,9 +6,17 @@ import {
   TextField,
   Button,
   Divider,
+  InputAdornment,
+  IconButton,
+  Alert,
+  Fade,
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { signIn } from "../redux/auth/authSlice";
@@ -22,30 +30,39 @@ export default function LogIn() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
   useEffect(() => {
     if (error) {
-      alert(error);
+      setLocalError(error);
     }
   }, [error]);
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
+  const handleTogglePassword = () => setShowPassword(!showPassword);
+
   // → Handle login click
   const handleLogin = () => {
+    setLocalError("");
+    
     if (!email && !password) {
-      alert("Please enter email and password");
+      setLocalError("Please enter email and password");
       return;
     }
     if (!password) {
-      alert("Please enter password");
+      setLocalError("Please enter password");
       return;
     }
     if (!email) {
-      alert("Please enter email");
+      setLocalError("Please enter email");
       return;
     }
     if (!isValidEmail(email)) {
-      alert("Please enter a valid email");
+      setLocalError("Please enter a valid email");
       return;
     }
     dispatch(signIn({ emailOrPhone: email, password }))
@@ -142,30 +159,84 @@ export default function LogIn() {
 
           <Typography
             sx={{
-              fontWeight: "500",
-              fontSize: { xs: "24px", md: "34px" },
+              fontWeight: "600",
+              fontSize: { xs: "28px", md: "36px" },
               color: "primary.main",
+              mb: 1,
             }}
           >
-            Log in
+            Welcome Back!
           </Typography>
+          
+          <Typography
+            sx={{
+              fontSize: { xs: "14px", md: "16px" },
+              color: "text.secondary",
+              mb: 3,
+            }}
+          >
+            Please login to continue
+          </Typography>
+
+          {/* Error Alert */}
+          {localError && (
+            <Fade in={!!localError}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  width: "90%", 
+                  mb: 2,
+                  borderRadius: "10px",
+                }}
+                onClose={() => setLocalError("")}
+              >
+                {localError}
+              </Alert>
+            </Fade>
+          )}
 
           {/* Email */}
           <TextField
-            label="Email"
+            label="Email Address"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setLocalError("");
+            }}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailIcon 
+                    sx={{ 
+                      color: emailFocused ? "primary.main" : "action.disabled",
+                      transition: "color 0.3s"
+                    }} 
+                  />
+                </InputAdornment>
+              ),
+            }}
             sx={{
               width: "90%",
-              marginTop: "20px",
+              marginTop: "10px",
               "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "#F3F4F6",
+                },
+                "&.Mui-focused": {
+                  backgroundColor: "white",
+                  boxShadow: "0 0 0 3px rgba(82, 172, 140, 0.1)",
+                },
               },
               "& .MuiInputBase-input": {
-                fontSize: "19px",
-                fontWeight: 300,
+                fontSize: "16px",
+                fontWeight: 400,
+                padding: "14px 14px 14px 0",
               },
             }}
           />
@@ -173,19 +244,66 @@ export default function LogIn() {
           {/* Password */}
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setLocalError("");
+            }}
+            onFocus={() => setPasswordFocused(true)}
+            onBlur={() => setPasswordFocused(false)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleLogin();
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon 
+                    sx={{ 
+                      color: passwordFocused ? "primary.main" : "action.disabled",
+                      transition: "color 0.3s"
+                    }} 
+                  />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleTogglePassword}
+                    edge="end"
+                    sx={{
+                      color: "action.disabled",
+                      "&:hover": {
+                        color: "primary.main",
+                      },
+                    }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
             sx={{
               width: "90%",
               marginTop: "20px",
               "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "#F3F4F6",
+                },
+                "&.Mui-focused": {
+                  backgroundColor: "white",
+                  boxShadow: "0 0 0 3px rgba(82, 172, 140, 0.1)",
+                },
               },
               "& .MuiInputBase-input": {
-                fontSize: "19px",
-                fontWeight: 300,
+                fontSize: "16px",
+                fontWeight: 400,
+                padding: "14px 14px 14px 0",
               },
             }}
           />
@@ -228,11 +346,27 @@ export default function LogIn() {
             disabled={loading}
             sx={{
               backgroundColor: "primary.main",
-              fontSize: "19px",
-              fontWeight: "400",
+              fontSize: "18px",
+              fontWeight: "500",
               width: "90%",
+              height: "52px",
               color: "white",
               textTransform: "none",
+              borderRadius: "12px",
+              mt: 1,
+              boxShadow: "0 4px 12px rgba(82, 172, 140, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+                transform: "translateY(-2px)",
+                boxShadow: "0 6px 20px rgba(82, 172, 140, 0.4)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+              },
+              "&:disabled": {
+                backgroundColor: "action.disabledBackground",
+              },
             }}
           >
             {loading ? (
@@ -263,26 +397,70 @@ export default function LogIn() {
           </Stack>
 
           {/* Social Login */}
-          <Stack direction={"row"} spacing={1} sx={{ width: "90%" }}>
-            <Button variant="outlined" sx={{ width: "49%" }}>
-              FaceBook
+          <Stack direction={"row"} spacing={2} sx={{ width: "90%" }}>
+            <Button 
+              variant="outlined" 
+              sx={{ 
+                width: "49%",
+                borderRadius: "12px",
+                textTransform: "none",
+                borderColor: "#E5E7EB",
+                color: "text.primary",
+                py: 1.5,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "#3b5998",
+                  backgroundColor: "rgba(59, 89, 152, 0.04)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              Facebook
             </Button>
-            <Button variant="outlined" sx={{ width: "49%" }}>
+            <Button 
+              variant="outlined" 
+              sx={{ 
+                width: "49%",
+                borderRadius: "12px",
+                textTransform: "none",
+                borderColor: "#E5E7EB",
+                color: "text.primary",
+                py: 1.5,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "#DB4437",
+                  backgroundColor: "rgba(219, 68, 55, 0.04)",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
               Google
             </Button>
           </Stack>
 
           <Typography
             sx={{
-              fontSize: { xs: "12px", md: "22px" },
-              fontWeight: "300",
+              fontSize: { xs: "14px", md: "16px" },
+              fontWeight: "400",
               marginTop: "20px",
+              color: "text.secondary",
             }}
           >
             Don't have an account?{" "}
             <Link to="/signUp" style={{ textDecoration: "none" }}>
-              <span style={{ color: "#52AC8C", cursor: "pointer" }}>
-                New Account
+              <span 
+                style={{ 
+                  color: "#52AC8C", 
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                onMouseLeave={(e) => e.target.style.textDecoration = "none"}
+              >
+                Sign Up
               </span>
             </Link>
           </Typography>

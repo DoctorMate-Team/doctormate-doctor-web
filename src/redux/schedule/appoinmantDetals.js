@@ -1,18 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../utils/api";
 export const getPatientDetals = createAsyncThunk(
   "patientdet/getPatientDetals",
   async ({ id }, { rejectWithValue }) => {
     try {
-      //const token = localStorage.getItem("token");
       console.log("id: ", id);
-      const response = await axios.get(
-        `https://doctormate.runasp.net/api/doctor/patients/${id}/details`,
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
-          },
-        }
+      const response = await api.get(
+        `/doctor/patients/${id}/details`
       );
       console.log("response.data: ", response.data.data);
       return response.data;
@@ -26,15 +20,9 @@ export const getAppDetById = createAsyncThunk(
   async ({ id }, { rejectWithValue }) => {
       console.log(" getAppDetById id: ", id);
     try {
-      //const token = localStorage.getItem("token");
-      const response = await axios.get(
+      const response = await api.get(
         // `https://doctormate.runasp.net/api/appointments/${id}/details`,
-        `https://doctormate.runasp.net/api/appointments/${id}/details`,
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
-          },
-        }
+        `/appointments/${id}/details`
       );
       console.log("response.data: ", response.data);
       return response.data;

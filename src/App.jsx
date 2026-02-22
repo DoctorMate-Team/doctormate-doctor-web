@@ -28,6 +28,7 @@ import AppointmentsDetails from "./pages/schedule/appoinmantDetals";
 import Details1 from "./pages/schedule/details1";
 import MedicalImaging from "./pages/schedule/uploadImage";
 import AppointmentScheduleTable from "./pages/schedule/timeLineAppomint";
+import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -37,31 +38,31 @@ function App() {
       <AddDiagnosis />*/}
 
       <Routes>
+        {/* Public Routes */}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/logIn" element={<LogIn />} />
         <Route path="/compeleteprofile" element={<ComPro />} />
         <Route path="/logIn/forgetpass/otp/resetpass" element={<ResetPass />} />
         <Route path="/logIn/forgetpass" element={<ForgetPass />} />
         <Route path="/logIn/forgetpass/otp" element={<Otp />} />
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/patients/patientlist" element={<PatientList />} />
-        <Route path="/schedule" element={<Schedule />} />
-        <Route path="/schedule/appointmentsdetails/details" element={<Details1 />} />
-        <Route path="/medicalimaging" element={<MedicalImaging />} />
-        <Route path="/schedule/appointmentsdetails" element={<AppointmentsDetails />} />
-        <Route path="/dicom" element={<Dicom />} />
-        <Route path="/dicom/imageViwer" element={<ImageViwer />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/doctorprofile" element={<DoctorProfile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/helpsupport" element={<HelpSupport />} />
-        <Route path="/message" element={<Message />} />
-        <Route path="/overview" element={<OverView />} />
-        <Route
-          path="/AppointmentTimeline"
-          element={<AppointmentScheduleTable />}
-        />
+        
+        {/* Protected Routes */}
+        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
+        <Route path="/patients/patientlist" element={<ProtectedRoute><PatientList /></ProtectedRoute>} />
+        <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+        <Route path="/schedule/appointmentsdetails/details" element={<ProtectedRoute><Details1 /></ProtectedRoute>} />
+        <Route path="/medicalimaging" element={<ProtectedRoute><MedicalImaging /></ProtectedRoute>} />
+        <Route path="/schedule/appointmentsdetails" element={<ProtectedRoute><AppointmentsDetails /></ProtectedRoute>} />
+        <Route path="/dicom" element={<ProtectedRoute><Dicom /></ProtectedRoute>} />
+        <Route path="/dicom/imageViwer" element={<ProtectedRoute><ImageViwer /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="/doctorprofile" element={<ProtectedRoute><DoctorProfile /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/helpsupport" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
+        <Route path="/message" element={<ProtectedRoute><Message /></ProtectedRoute>} />
+        <Route path="/overview" element={<ProtectedRoute><OverView /></ProtectedRoute>} />
+        <Route path="/AppointmentTimeline" element={<ProtectedRoute><AppointmentScheduleTable /></ProtectedRoute>} />
       </Routes>
     </ThemeProvider>
   );

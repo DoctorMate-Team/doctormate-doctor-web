@@ -13,6 +13,7 @@ import {
   Grid,
 } from "@mui/material";
 import { Alert } from "@mui/material";
+import { Snackbar } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -20,6 +21,7 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { addDiagnoses } from "../../../redux/schedule/addDiagnoses";
+import { getAppDetById } from "../../../redux/schedule/appoinmantDetals";
 const style = {
   position: "absolute",
   top: "50%",
@@ -39,6 +41,7 @@ const style = {
 };
 export default function AddDiagnosis({ openDiagnosis, setopenDiagnosis }) {
   const [showAlert, setShowAlert] = useState(false);
+  const [openSnack, setOpenSnack] = useState(false);
   const selectedPatient = useSelector(
     (state) => state.schedule.selectedPatient
   );
@@ -48,7 +51,7 @@ export default function AddDiagnosis({ openDiagnosis, setopenDiagnosis }) {
   const dispatch = useDispatch();
   const [description, setDescription] = useState("");
   const [icdCode, setIcdCode] = useState("");
-  const [severity, setSeverity] = useState("Moderate");
+  const [severity, setSeverity] = useState("moderate");
   //const handleOpen = () => setOpen(true);
   const handleClose = () => setopenDiagnosis(false);
   const handleSave = async () => {
@@ -66,8 +69,14 @@ export default function AddDiagnosis({ openDiagnosis, setopenDiagnosis }) {
           severity,
         })
       ).unwrap();
-
-      setopenDiagnosis(false); // يقفل المودال بعد النجاح
+      // Refresh appointment details
+      await dispatch(getAppDetById({ id: selectedPatient?.id }));
+      setOpenSnack(true);
+      setopenDiagnosis(false);
+      // Reset form
+      setDescription("");
+      setIcdCode("");
+      setSeverity("moderate");
     } catch (err) {
       console.log(err);
     }
@@ -229,7 +238,7 @@ export default function AddDiagnosis({ openDiagnosis, setopenDiagnosis }) {
                       },
                     }}
                   >
-                    {level === "Moderate" ? (
+                    {level === "moderate" ? (
                       <WarningAmberIcon />
                     ) : (
                       <Box
@@ -324,6 +333,20 @@ export default function AddDiagnosis({ openDiagnosis, setopenDiagnosis }) {
           </Box>
         </Box>
       </Modal>
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnack(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setOpenSnack(false)}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Diagnosis added successfully!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Stack,
   Box,
@@ -18,12 +18,13 @@ import {
 import CircularProgress from "@mui/material/CircularProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from "@mui/icons-material/Error";
-import { useDispatch } from "react-redux";
-import { completeProfile } from "../redux/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { completeProfile, fetchSpecialties } from "../redux/auth/authSlice";
 import { TimeField } from "@mui/x-date-pickers/TimeField";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useNavigate } from "react-router";
+import api from "../utils/api";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -46,26 +47,39 @@ const workingDaysList = [
 ];
 export default function ComPro() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { specialties, specialtiesLoading } = useSelector((state) => state.auth);
+  
   const [image, setImage] = useState(null);
   const storedUser = JSON.parse(localStorage.getItem("user"));
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
 
   const [formData, setFormData] = useState({
     address: "",
-    specialtyId: storedUser?.id || "",
+    specialtyId: "",
     qualifications: "",
     licenseNumber: "",
     consultationFee: "",
+    imageUrl: "",
     startWorkingTime: null,
     endWorkingTime: null,
     workingDays: [],
   });
 
+  // Fetch specialties on mount
+  useEffect(() => {
+    dispatch(fetchSpecialties());
+  }, [dispatch]);
+
   const validateForm = () => {
     const newErrors = {};
+
+    if (!formData.specialtyId?.trim()) {
+      newErrors.specialtyId = "Specialty is required";
+    }
 
     if (!formData.address?.trim()) {
       newErrors.address = "Address is required";
@@ -104,10 +118,40 @@ export default function ComPro() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleImage = (e) => {
+  const handleImage = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
+    if (!file) return;
+
+    // Show preview immediately
+    setImage(URL.createObjectURL(file));
+    setImageUploading(true);
+    setFormError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await api.post("/Profile_Management/image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Store the image URL from API response
+      const imageUrl = response.data.data || response.data.imageUrl || response.data;
+      setFormData((prev) => ({
+        ...prev,
+        imageUrl: imageUrl,
+      }));
+    } catch (error) {
+      console.error("Image upload error:", error);
+      setFormError(
+        error.response?.data?.message || "Failed to upload image. Please try again."
+      );
+      // Clear the preview on error
+      setImage(null);
+    } finally {
+      setImageUploading(false);
     }
   };
 
@@ -157,6 +201,7 @@ export default function ComPro() {
         startWorkingTime: formData.startWorkingTime.format("HH:mm:ss"),
         endWorkingTime: formData.endWorkingTime.format("HH:mm:ss"),
         consultationFee: Number(formData.consultationFee),
+        imageUrl: formData.imageUrl || "",
       })
     )
       .unwrap()
@@ -329,6 +374,25 @@ export default function ComPro() {
               margin: "10px 0",
             }}
           >
+            {imageUploading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  borderRadius: "50%",
+                  zIndex: 2,
+                }}
+              >
+                <CircularProgress size={40} sx={{ color: "white" }} />
+              </Box>
+            )}
             <Avatar
               src={image}
               sx={{
@@ -339,6 +403,7 @@ export default function ComPro() {
             />
             <IconButton
               component="label"
+              disabled={imageUploading}
               sx={{
                 position: "absolute",
                 bottom: 10,
@@ -350,6 +415,10 @@ export default function ComPro() {
                 "&:hover": {
                   background: "#f5f5f5",
                 },
+                "&:disabled": {
+                  backgroundColor: "#e0e0e0",
+                  cursor: "not-allowed",
+                },
               }}
             >
               <EditIcon fontSize="small" />
@@ -358,9 +427,76 @@ export default function ComPro() {
                 hidden
                 accept="image/*"
                 onChange={handleImage}
+                disabled={imageUploading}
               />
             </IconButton>
           </Box>
+
+          {/* Specialty Selection */}
+          <FormControl
+            sx={{
+              width: "90%",
+              marginTop: "20px",
+              ...(errors.specialtyId && {
+                "& .MuiOutlinedInput-root": {
+                  "&.Mui-error fieldset": {
+                    borderColor: "error.main",
+                  },
+                },
+              }),
+            }}
+            error={!!errors.specialtyId}
+          >
+            <Select
+              displayEmpty
+              name="specialtyId"
+              value={formData.specialtyId}
+              onChange={handleChange}
+              input={<OutlinedInput />}
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <span style={{ color: "#9e9e9e" }}>Select Specialty</span>;
+                }
+                const specialty = specialties.find((s) => s.id === selected);
+                return specialty?.name || "Select Specialty";
+              }}
+              MenuProps={MenuProps}
+              disabled={specialtiesLoading}
+            >
+              <MenuItem disabled value="">
+                <em>Select Specialty</em>
+              </MenuItem>
+
+              {specialtiesLoading ? (
+                <MenuItem disabled>
+                  <CircularProgress size={20} />
+                  <span style={{ marginLeft: 10 }}>Loading specialties...</span>
+                </MenuItem>
+              ) : (
+                specialties.map((specialty) => (
+                  <MenuItem key={specialty.id} value={specialty.id}>
+                    {specialty.name}
+                  </MenuItem>
+                ))
+              )}
+            </Select>
+            {errors.specialtyId && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  mt: 0.5,
+                  ml: 2,
+                }}
+              >
+                <ErrorIcon fontSize="small" />
+                {errors.specialtyId}
+              </Typography>
+            )}
+          </FormControl>
 
           <TextField
             label="Consultation fee"
@@ -517,10 +653,12 @@ export default function ComPro() {
               },
             }}
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || imageUploading}
           >
             {loading ? (
               <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : imageUploading ? (
+              "Uploading image..."
             ) : (
               "Complete Profile"
             )}

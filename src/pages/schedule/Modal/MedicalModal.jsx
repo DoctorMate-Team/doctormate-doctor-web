@@ -10,12 +10,15 @@ import {
   TextField,
   Typography,
   FormControl,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { addmedical } from "../../../redux/schedule/addMedicaql";
+import { getAppDetById } from "../../../redux/schedule/appoinmantDetals";
 const style = {
   position: "absolute",
   top: "50%",
@@ -38,6 +41,7 @@ export default function BasicModal({ openMedicalModal, SetopenMedicalModal }) {
     (state) => state.schedule.selectedPatient
   );
   const dispatch = useDispatch();
+  const [openSnack, setOpenSnack] = useState(false);
   const handleClose = () => SetopenMedicalModal(false);
   const [recordType, setRecordType] = useState("diagnosis");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -60,7 +64,15 @@ export default function BasicModal({ openMedicalModal, SetopenMedicalModal }) {
           patientId,
         })
       ).unwrap();
+      // Refresh appointment details
+      await dispatch(getAppDetById({ id: selectedPatient?.id }));
+      setOpenSnack(true);
       SetopenMedicalModal(false);
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setRecordType("diagnosis");
+      setSelectedFile(null);
     } catch (error) {
       console.log("Error:", error);
     }
@@ -219,6 +231,20 @@ export default function BasicModal({ openMedicalModal, SetopenMedicalModal }) {
           </Box>
         </Box>
       </Modal>
+      <Snackbar
+        open={openSnack}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnack(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setOpenSnack(false)}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Medical record added successfully!
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

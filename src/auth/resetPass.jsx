@@ -7,12 +7,16 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Alert,
+  Fade,
+  Chip,
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useState, useEffect } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import LockIcon from "@mui/icons-material/Lock";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { resetPass, clearAuthError } from "../redux/auth/authSlice";
@@ -111,7 +115,6 @@ export default function ResetPass() {
     )
       .unwrap()
       .then(() => {
-        alert("Password has been reset successfully!");
         navigate("/login");
       })
       .catch((error) => {
@@ -213,9 +216,10 @@ export default function ResetPass() {
 
           <Typography
             sx={{
-              fontWeight: "500",
-              fontSize: { xs: "20px", md: "34px" },
+              fontWeight: "600",
+              fontSize: { xs: "24px", md: "36px" },
               color: "primary.main",
+              mb: 1,
             }}
           >
             Reset Password
@@ -223,15 +227,32 @@ export default function ResetPass() {
 
           <Typography
             sx={{
-              color: "#929292",
-              fontSize: { xs: "12px", md: "15px" },
+              color: "text.secondary",
+              fontSize: { xs: "14px", md: "16px" },
               fontWeight: "400",
               marginBottom: { xs: "20px", md: "20px" },
               textAlign: "center",
             }}
           >
-            Enter new password and confirm password to reset your password
+            Enter your new password below
           </Typography>
+
+          {/* Error Alert */}
+          {localError && (
+            <Fade in={!!localError}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  width: "90%", 
+                  mb: 2,
+                  borderRadius: "10px",
+                }}
+                onClose={() => setLocalError("")}
+              >
+                {localError}
+              </Alert>
+            </Fade>
+          )}
 
           {/* New Password */}
           <TextField
@@ -241,20 +262,40 @@ export default function ResetPass() {
             onChange={handlePasswordChange}
             sx={{
               width: "90%",
-              marginTop: "20px",
+              marginTop: "10px",
               "& .MuiOutlinedInput-root": {
-                borderRadius: "10px",
-                backgroundColor: "#F0F2F6",
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "#F3F4F6",
+                },
+                "&.Mui-focused": {
+                  backgroundColor: "white",
+                  boxShadow: "0 0 0 3px rgba(82, 172, 140, 0.1)",
+                },
               },
               "& .MuiInputBase-input": {
-                fontSize: "19px",
-                fontWeight: 300,
+                fontSize: "16px",
+                fontWeight: 400,
               },
             }}
             InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon sx={{ color: "action.disabled" }} />
+                </InputAdornment>
+              ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleTogglePassword} edge="end">
+                  <IconButton 
+                    onClick={handleTogglePassword} 
+                    edge="end"
+                    sx={{
+                      color: "action.disabled",
+                      "&:hover": { color: "primary.main" },
+                    }}
+                  >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>

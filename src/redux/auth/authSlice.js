@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../../utils/api";
 
 // ========================== signIn thunk ==========================
 export const signIn = createAsyncThunk(
@@ -98,23 +99,30 @@ export const resetPass = createAsyncThunk(
   }
 );
 
+// ========================== fetchSpecialties ==========================
+export const fetchSpecialties = createAsyncThunk(
+  "auth/fetchSpecialties",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/Specialties");
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch specialties"
+      );
+    }
+  }
+);
+
 // ========================== completeProfile profile ==========================
 export const completeProfile = createAsyncThunk(
   "user/completeProfile",
   async (profileData, { rejectWithValue }) => {
     console.log("profileData = ", profileData);
     try {
-      const token = localStorage.getItem("token");
-      console.log("token", token);
-      const response = await axios.post(
-        "https://doctormate.runasp.net/api/CompleteProfile/complete",
-        profileData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-           
-          },
-        }
+      const response = await api.post(
+        "/CompleteProfile/complete",
+        profileData
       );
       return response.data;
     } catch (error) {
@@ -129,9 +137,14 @@ export const completeProfile = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: localStorage.getItem("user") 
+      ? JSON.parse(localStorage.getItem("user")) 
+      : null,
+    token: localStorage.getItem("token") || null,
     loading: false,
     error: null,
+    specialties: [],
+    specialtiesLoading: false,
     forgotPasswordEmail: {
       email: "",
       forgotPass: false,
@@ -150,6 +163,19 @@ const authSlice = createSlice({
         forgotPass: false,
       };
     },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.error = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    },
+    setUser: (state, action) => {
+      state.user = action.payload;
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    },
   },
   extraReducers: (builder) => {
     // signIn
@@ -160,7 +186,8 @@ const authSlice = createSlice({
       })
       .addCase(signIn.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
       })
       .addCase(signIn.rejected, (state, action) => {
         state.loading = false;
@@ -193,7 +220,8 @@ const authSlice = createSlice({
       })
       .addCase(signUp.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.data.user;
+        state.token = action.payload.data.token;
       })
       .addCase(signUp.rejected, (state, action) => {
         state.loading = false;
@@ -252,11 +280,28 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
+
+    // fetchSpecialties
+    builder
+      .addCase(fetchSpecialties.pending, (state) => {
+        state.specialtiesLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchSpecialties.fulfilled, (state, action) => {
+        state.specialtiesLoading = false;
+        state.specialties = action.payload;
+      })
+      .addCase(fetchSpecialties.rejected, (state, action) => {
+        state.specialtiesLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 export const {
   clearAuthError,
   setForgotPasswordEmail,
   clearForgotPasswordEmail,
+  logout,
+  setUser,
 } = authSlice.actions;
 export default authSlice.reducer;

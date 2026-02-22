@@ -1,4 +1,4 @@
-import { Stack, Box, Typography, Button } from "@mui/material";
+import { Stack, Box, Typography, Button, Alert, Fade, Chip } from "@mui/material";
 import { useState, useEffect } from "react";
 import OtpInput from "react-otp-input";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -43,7 +43,6 @@ export default function Otp() {
   };
   const handelVerfyOtp = () => {
     if (otp.length !== 6) {
-      alert("Please enter the complete 6-digit OTP code");
       return;
     }
     dispatch(verfyOtp({ email, otp, isForgetPass: forgotPass }))
@@ -66,7 +65,7 @@ export default function Otp() {
         navigate("/");
       })
       .catch((error) => {
-        alert(error || "Invalid OTP code. Please try again.");
+        console.error(error);
       });
   };
 
@@ -141,23 +140,51 @@ export default function Otp() {
           />
           <Typography
             sx={{
-              fontWeight: "500",
-              fontSize: { xs: "20px", md: "34px" },
+              fontWeight: "600",
+              fontSize: { xs: "24px", md: "36px" },
               color: "primary.main",
+              mb: 1,
             }}
           >
-            Send OTP code
+            Verify OTP
           </Typography>
           <Typography
             sx={{
-              color: "#929292",
-              fontSize: { xs: "12px", md: "15px" },
+              color: "text.secondary",
+              fontSize: { xs: "14px", md: "16px" },
               fontWeight: "400",
-              marginBottom: "20px",
+              marginBottom: "30px",
+              textAlign: "center",
             }}
           >
-            Enter the 6-digit that we have sent
+            Enter the 6-digit code sent to your email
           </Typography>
+
+          {/* Error Alert */}
+          {error && (
+            <Fade in={!!error}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  width: "90%", 
+                  mb: 2,
+                  borderRadius: "10px",
+                }}
+              >
+                {error}
+              </Alert>
+            </Fade>
+          )}
+
+          {otp.length > 0 && otp.length < 6 && (
+            <Chip
+              label={`${otp.length}/6 digits entered`}
+              color="primary"
+              variant="outlined"
+              size="small"
+              sx={{ mb: 2 }}
+            />
+          )}
           <OtpInput
             value={otp}
             onChange={setOtp}
@@ -167,16 +194,27 @@ export default function Otp() {
               <input
                 {...props}
                 style={{
-                  width: "clamp(35px, 8vw, 62px)",
-                  height: "clamp(45px, 9vw, 61px)",
-                  fontSize: "clamp(16px, 3vw, 24px)",
+                  width: "clamp(40px, 8vw, 62px)",
+                  height: "clamp(50px, 9vw, 68px)",
+                  fontSize: "clamp(18px, 3vw, 24px)",
                   textAlign: "center",
-                  border: "2px solid #ddd",
-                  borderRadius: "clamp(10px, 2vw, 17px)",
+                  border: "2px solid #E5E7EB",
+                  borderRadius: "clamp(12px, 2vw, 16px)",
                   outline: "none",
-                  transition: "all 0.3s",
+                  transition: "all 0.3s ease",
                   backgroundColor: "#F9FAFB",
-                  margin: "0 clamp(3px, 1.5vw, 10px)",
+                  margin: "0 clamp(4px, 1.5vw, 10px)",
+                  fontWeight: "600",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#52AC8C";
+                  e.target.style.backgroundColor = "white";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(82, 172, 140, 0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "#E5E7EB";
+                  e.target.style.backgroundColor = "#F9FAFB";
+                  e.target.style.boxShadow = "none";
                 }}
               />
             )}
@@ -220,16 +258,30 @@ export default function Otp() {
               fontSize: "19px",
               fontWeight: "400",
               width: "90%",
+              height: "52px",
               color: "white",
               textTransform: "none",
+              borderRadius: "12px",
               margin: "20px 0",
-              opacity: loading || otp.length !== 6 ? 0.7 : 1,
+              boxShadow: "0 4px 12px rgba(82, 172, 140, 0.3)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+                transform: "translateY(-2px)",
+                boxShadow: "0 6px 20px rgba(82, 172, 140, 0.4)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+              },
+              "&:disabled": {
+                backgroundColor: "action.disabledBackground",
+              },
             }}
           >
             {loading ? (
               <CircularProgress size={24} sx={{ color: "white" }} />
             ) : (
-              "Verify OTP"
+              "Verify Code"
             )}
           </Button>
 

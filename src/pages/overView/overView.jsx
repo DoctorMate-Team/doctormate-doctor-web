@@ -1,15 +1,17 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Grid,
   Typography,
   Avatar,
-  Button,
-  Divider,
-  TextField,
-  Chip,
   Box,
   Stack,
-  colors,
+  Card,
+  CardContent,
+  Chip,
+  Fade,
+  Skeleton,
+  Alert,
+  IconButton,
 } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -18,609 +20,525 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import PersonIcon from "@mui/icons-material/Person";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import CircleIcon from "@mui/icons-material/Circle";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import MedicationIcon from "@mui/icons-material/Medication";
+import StarIcon from "@mui/icons-material/Star";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import NavBar from "../../components/navBar";
-import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
-import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import { useDispatch, useSelector } from "react-redux";
-// import { overViewSec2 } from "../redux/overView";
-import {overViewSec2} from "../../redux/overViews/overView"
-function createData(INFRASTRUCTURE, STATUS, UPTIME) {
-  return { INFRASTRUCTURE, STATUS, UPTIME };
-}
-
-const rows = [
-  createData("Core API Gateway", "ONLINE", "99.98%"),
-  createData("PACS Image Server", "STABLE", "99.98%"),
-  createData("AI Diagnostic Service", "Ready", "99.98%"),
-];
+import { fetchDoctorDashboard } from "../../redux/overViews/overView";
 
 export default function OverView() {
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.overView);
+  const { stats, todayAppointments, recentPatients, urgentAlerts, loading, error } = useSelector(
+    (state) => state.overView
+  );
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // Metric data
   useEffect(() => {
-    dispatch(overViewSec2());
+    dispatch(fetchDoctorDashboard());
   }, [dispatch]);
-  const metrics = [
-    {
-      icon: <PersonIcon />,
-      title: "Total Users",
-      value: user?.data?.totalUsers,
-      change: "+12%",
-      changeColor: "success.main",
-    },
-    {
-      icon: <LocalHospitalIcon />,
-      title: "Total Doctors",
-      value: user?.data?.totalDoctors,
-      change: "+17%",
-      changeColor: "success.main",
-    },
-    {
-      icon: <PeopleAltIcon />,
-      title: "Total Patients",
-      value: user?.data?.totalPatients,
-      change: "+8%",
-      changeColor: "success.main",
-    },
-    {
-      icon: <CalendarTodayIcon />,
-      title: "Appointments",
-      value: user?.data?.totalAppointments,
-      change: "-12%",
-      changeColor: "error.main",
-    },
-    {
-      icon: <AttachMoneyIcon />,
-      title: "Total Payments",
-      value: "$" + user?.data?.totalPayments,
-      change: "+12%",
-      changeColor: "success.main",
-    },
-  ];
 
-  // System health data
-  const services = [
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Stats cards configuration
+  const statsCards = [
     {
-      name: "Core API Gateway",
-      status: "ONLINE",
-      color: "success",
-      uptime: "99.98%",
+      icon: <CalendarTodayIcon sx={{ fontSize: 32 }} />,
+      title: "Total Appointments",
+      value: stats?.totalAppointments?.total || 0,
+      subtitle: `${stats?.totalAppointments?.today || 0} today`,
+      color: "#4CAF50",
+      bgColor: "#E8F5E9",
     },
     {
-      name: "PACS Image Server",
-      status: "STABLE",
-      color: "success",
-      uptime: "99.98%",
+      icon: <EventAvailableIcon sx={{ fontSize: 32 }} />,
+      title: "Upcoming",
+      value: stats?.totalAppointments?.upcoming || 0,
+      subtitle: `${stats?.totalAppointments?.completed || 0} completed`,
+      color: "#2196F3",
+      bgColor: "#E3F2FD",
     },
     {
-      name: "AI Diagnostic Service",
-      status: "Ready",
-      color: "primary",
-      uptime: "99.98%",
+      icon: <PeopleAltIcon sx={{ fontSize: 32 }} />,
+      title: "Total Patients",
+      value: stats?.totalPatients || 0,
+      subtitle: "Registered patients",
+      color: "#FF9800",
+      bgColor: "#FFF3E0",
+    },
+    {
+      icon: <AssignmentIcon sx={{ fontSize: 32 }} />,
+      title: "Diagnoses",
+      value: stats?.totalDiagnoses || 0,
+      subtitle: `${stats?.totalPrescriptions || 0} prescriptions`,
+      color: "#9C27B0",
+      bgColor: "#F3E5F5",
+    },
+    {
+      icon: <StarIcon sx={{ fontSize: 32 }} />,
+      title: "Average Rating",
+      value: stats?.averageRating?.toFixed(1) || "0.0",
+      subtitle: `${stats?.totalReviews || 0} reviews`,
+      color: "#FFC107",
+      bgColor: "#FFF8E1",
     },
   ];
 
   return (
-    <Stack direction={"row"} sx={{ width: "100%" }}>
+    <Stack direction="row" sx={{ width: "100%" }}>
       <NavBar />
       <Box
         sx={{
-          backgroundColor: "#F0F2F6",
+          backgroundColor: "#F5F7FA",
           marginLeft: "235px",
-          width: "calc(100% - 212px)",
+          width: "calc(100% - 235px)",
           minHeight: "100vh",
-          padding: "0 15px",
+          padding: "20px",
         }}
       >
         {/* Header */}
-        <Stack
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            flexDirection: { xs: "column", lg: "row" },
-            mb: 4,
-            backgroundColor: "white",
-            borderRadius: "15px",
-            padding: "19px",
-          }}
-        >
-          <Typography
+        <Fade in timeout={500}>
+          <Card
             sx={{
-              fontSize: "24px",
-              fontWeight: "500",
-              width: { xs: "100%", md: "50%" },
+              mb: 3,
+              borderRadius: "16px",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "white",
             }}
           >
-            Admin Overview
-          </Typography>
-          <Stack
-            sx={{
-              flexDirection: { xs: "column", md: "row" },
-              width: { xs: "100%", md: "50%" },
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Box>
-              <TextField
-                fullWidth
-                placeholder="Search resources..."
-                sx={{
-                  width: "290px",
-                  "& .MuiInputBase-root": {
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "20px",
-                  },
-                }}
-                InputProps={{
-                  startAdornment: <SearchIcon />,
-                }}
-              />
-            </Box>
-            <Divider orientation="vertical" flexItem />
-            <NotificationsIcon />
-            <Stack direction={"row"} spacing={1}>
-              <Avatar
-                sx={{ backgroundColor: "white", border: "1px solid black" }}
-              >
-                <PersonIcon sx={{ color: "black" }} />
-              </Avatar>
-              <Stack>
-                <Typography sx={{ fontSize: "12px", fontWeight: "400" }}>
-                  Admin User
-                </Typography>
-                <Typography
-                  sx={{ fontSize: "8px", fontWeight: "300", color: "#828282" }}
-                >
-                  Super Admin
-                </Typography>
-              </Stack>
-            </Stack>
-          </Stack>
-        </Stack>
-        {/* Metrics Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {metrics.map((metric, index) => (
-            <Grid
-              size={{ xs: 6, md: 2.4 }}
-              sx={{
-                background: "white",
-                borderRadius: "15px",
-                border: "1px solid #E0E0E0",
-                padding: "15px",
-              }}
-              key={index}
-            >
-              <Stack direction={"column"}>
-                <Stack
-                  direction={"row"}
-                  sx={{
-                    justifyContent: "space-between",
-                    mb: 3,
-                  }}
-                >
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="center" spacing={2}>
                   <Avatar
-                    sx={{
-                      bgcolor: "primary.main",
-                      width: 56,
-                      height: 56,
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    }}
+                    src={user?.imageUrl}
+                    sx={{ width: 64, height: 64, border: "3px solid white" }}
                   >
-                    {metric.icon}
+                    {user?.fullName?.charAt(0) || "D"}
                   </Avatar>
-                  <Box
-                    sx={{
-                      fontWeight: "bold",
-                      backgroundColor: "#254A3D",
-                      color: "#52AC8C",
-                      borderRadius: "6px",
-                      height: "fit-content",
-                      padding: "0 5px",
-                    }}
-                  >
-                    <Typography>{metric.change}</Typography>
+                  <Box>
+                    <Typography variant="h5" fontWeight="600">
+                      Welcome back, Dr. {user?.fullName || "Doctor"}!
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
+                      Here's what's happening with your practice today
+                    </Typography>
                   </Box>
                 </Stack>
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontWeight: "400",
-                      color: "#828282",
-                    }}
-                  >
-                    {metric.title}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontWeight: "400",
-                      color: "#616161",
-                    }}
-                  >
-                    {metric.value}
-                  </Typography>
-                </Box>
+                <IconButton
+                  onClick={() => dispatch(fetchDoctorDashboard())}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    "&:hover": { backgroundColor: "rgba(255,255,255,0.3)" },
+                  }}
+                >
+                  <RefreshIcon />
+                </IconButton>
               </Stack>
-            </Grid>
-          ))}
-        </Grid>
-        {/* System Health and Quick Actions */}
-        <Stack
-          sx={{
-            flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ width: { xs: "100%", md: "49%" } }}>
-            <Stack
-              direction={"row"}
-              sx={{ justifyContent: "space-between", alignItems: "center" }}
-            >
-              <Stack direction={"row"} spacing={1}>
-                <MenuIcon sx={{ color: "primary.main" }} />
-                <Typography>System Health Status</Typography>
-              </Stack>
-              <Button
-                sx={{
-                  textTransform: "none",
-                  fontSize: "13px",
-                  fontWeight: 300,
-                }}
-              >
-                Refresh all
-              </Button>
-            </Stack>
-            <TableContainer component={Paper} sx={{ borderRadius: "20px" }}>
-              <Table aria-label="simple table">
-                <TableHead sx={{ backgroundColor: "#F4F4F4" }}>
-                  <TableRow>
-                    <TableCell
+            </CardContent>
+          </Card>
+        </Fade>
+
+        {/* Error Alert */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3, borderRadius: "12px" }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {loading
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <Grid item xs={12} sm={6} md={2.4} key={index}>
+                  <Skeleton variant="rectangular" height={140} sx={{ borderRadius: "16px" }} />
+                </Grid>
+              ))
+            : statsCards.map((card, index) => (
+                <Grid item xs={12} sm={6} md={2.4} key={index}>
+                  <Fade in timeout={300 * (index + 1)}>
+                    <Card
                       sx={{
-                        padding: "10px",
-                        fontSize: "14px",
-                        fontWeight: 400,
-                        color: "#828282",
+                        borderRadius: "16px",
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                        height: "100%",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                        },
                       }}
                     >
-                      INFRASTRUCTURE SERVICE
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        padding: "10px",
-                        fontSize: "14px",
-                        fontWeight: 400,
-                        color: "#828282",
-                      }}
-                    >
-                      STATUS BADGE
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        padding: "10px",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        color: "#828282",
-                      }}
-                    >
-                      UPTIME METRIC
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      key={row.name}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell>
-                        <Stack
-                          direction={"row"}
-                          alignItems={"center"}
-                          sx={{
-                            fontSize: "14px",
-                            fontWeight: 500,
-                            color: "#616161",
-                          }}
-                        >
-                          <CircleIcon
+                      <CardContent>
+                        <Stack spacing={2}>
+                          <Box
                             sx={{
-                              color: "primary.main",
-                              width: "6px",
-                              height: "6px",
-                              marginRight: "5px",
+                              width: 56,
+                              height: 56,
+                              borderRadius: "12px",
+                              backgroundColor: card.bgColor,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: card.color,
                             }}
-                          />
-                          {row.INFRASTRUCTURE}
+                          >
+                            {card.icon}
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="h4"
+                              fontWeight="700"
+                              color="text.primary"
+                            >
+                              {card.value}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              fontWeight="500"
+                              sx={{ mt: 0.5 }}
+                            >
+                              {card.title}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ mt: 0.5, display: "block" }}
+                            >
+                              {card.subtitle}
+                            </Typography>
+                          </Box>
                         </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          sx={{
-                            borderRadius: "8px",
-                            fontSize: "10px",
-                            fontWeight: "600",
-                            width: "71px",
-                            height: "21px",
-                            color:
-                              row.STATUS === "ONLINE" || row.STATUS === "STABLE"
-                                ? "#52AC8C"
-                                : "#87B0C9",
-                            backgroundColor:
-                              row.STATUS === "ONLINE" || row.STATUS === "STABLE"
-                                ? "#254A3D"
-                                : "#054E7C",
-                          }}
-                        >
-                          {row.STATUS}
-                        </Button>
-                      </TableCell>
-                      <TableCell
+                      </CardContent>
+                    </Card>
+                  </Fade>
+                </Grid>
+              ))}
+        </Grid>
+
+        {/* Two Column Layout */}
+        <Grid container spacing={3}>
+          {/* Today's Appointments */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                borderRadius: "16px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                height: "100%",
+              }}
+            >
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                  <CalendarTodayIcon color="primary" />
+                  <Typography variant="h6" fontWeight="600">
+                    Today's Appointments
+                  </Typography>
+                  <Chip
+                    label={todayAppointments?.length || 0}
+                    size="small"
+                    color="primary"
+                    sx={{ ml: "auto" }}
+                  />
+                </Stack>
+
+                {loading ? (
+                  <Stack spacing={2}>
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} variant="rectangular" height={80} sx={{ borderRadius: "12px" }} />
+                    ))}
+                  </Stack>
+                ) : todayAppointments && todayAppointments.length > 0 ? (
+                  <Stack spacing={2}>
+                    {todayAppointments.map((appointment, index) => (
+                      <Card
+                        key={index}
+                        variant="outlined"
                         sx={{
-                          fontSize: "10px",
-                          fontWeight: 500,
-                          color: "#616161",
+                          borderRadius: "12px",
+                          borderColor: "#E0E0E0",
+                          "&:hover": {
+                            borderColor: "primary.main",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                          },
+                          transition: "all 0.3s ease",
                         }}
                       >
-                        {row.UPTIME}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {/* Bottom Metrics */}
-            <Stack
-              sx={{
-                mt: "20px",
-                flexDirection: { xs: "column", md: "row" },
-                justifyContent: "space-between",
-                width: "100%",
-              }}
-            >
-              <Stack
-                direction={"column"}
-                spacing={2}
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "48%",
-                  padding: "20px",
-                  backgroundColor: "white",
-                  borderRadius: "20px",
-                  mb: { xs: "20px", md: "0" },
-                  height: "191px",
-                }}
-              >
-                <img
-                  src="/assets/overView/material-symbols_memory.png"
-                  alt=""
-                />
-                <Typography
-                  sx={{ fontSize: "20px", color: "#828282", fontWeight: "400" }}
-                >
-                  DataBase Load
-                </Typography>
-                <Typography Memory Usage>
-                  14.2%
-                </Typography>
-              </Stack>
-              <Stack
-                direction={"column"}
-                spacing={2}
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: "48%",
-                  padding: "20px",
-                  backgroundColor: "white",
-                  borderRadius: "20px",
-                  height: "191px",
-                }}
-              >
-                <img
-                  src="/assets/overView/material-symbols_memory.png"
-                  alt=""
-                />
-                <Typography
-                  sx={{ fontSize: "20px", color: "#828282", fontWeight: "400" }}
-                >
-                  Memory Usage
-                </Typography>
-                <Typography Memory Usage>
-                  68%
-                </Typography>
-              </Stack>
-            </Stack>
-          </Box>
-          <Box sx={{ width: { xs: "100%", md: "49%" } }}>
-            <Typography sx={{ fontSize: "20px", fontWeight: 500, mb: 2 }}>
-              Quick Action
-            </Typography>
-            <Stack
-              direction={"row"}
-              sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "primary.main",
-                border: "2px solid white",
-                borderRadius: "20px",
-                padding: "15px",
-                mb: "20px",
-              }}
-            >
-              <Stack direction={"row"} spacing={1}>
-                <PersonSearchOutlinedIcon
-                  sx={{ width: "44px", height: "44px", color: "white" }}
-                />
-                <Box>
-                  <Typography
-                    sx={{ fontSize: "16px", fontWeight: 400, color: "white" }}
-                  >
-                    Go to Users
-                  </Typography>
-                  <Typography
+                        <CardContent sx={{ p: 2 }}>
+                          <Stack direction="row" spacing={2} alignItems="center">
+                            <Avatar
+                              src={appointment.patientImage}
+                              sx={{ width: 48, height: 48 }}
+                            >
+                              {appointment.patientName?.charAt(0)}
+                            </Avatar>
+                            <Box flex={1}>
+                              <Typography variant="subtitle1" fontWeight="600">
+                                {appointment.patientName}
+                              </Typography>
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <AccessTimeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatTime(appointment.appointmentDate)}
+                                </Typography>
+                              </Stack>
+                            </Box>
+                            <Chip
+                              label={appointment.status || "Scheduled"}
+                              size="small"
+                              color={appointment.status === "Completed" ? "success" : "warning"}
+                            />
+                          </Stack>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Box
                     sx={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "#c6c4c4de",
+                      textAlign: "center",
+                      py: 6,
+                      color: "text.secondary",
                     }}
                   >
-                    Mange Portal Access
-                  </Typography>
-                </Box>
-              </Stack>
-              <ArrowForwardIosOutlinedIcon sx={{ color: "white" }} />
-            </Stack>
-            <Stack
-              direction={"row"}
+                    <CalendarTodayIcon sx={{ fontSize: 48, opacity: 0.3, mb: 2 }} />
+                    <Typography variant="body1">No appointments scheduled for today</Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Urgent Alerts */}
+          <Grid item xs={12} md={6}>
+            <Card
               sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "white",
-                border: "2px solid #52AC8C",
-                borderRadius: "20px",
-                padding: "15px",
-                mb: "20px",
+                borderRadius: "16px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                height: "100%",
               }}
             >
-              <Stack direction={"row"} spacing={1}>
-                <PersonSearchOutlinedIcon
-                  sx={{ width: "44px", height: "44px", color: "primary.main" }}
-                />
-                <Box>
-                  <Typography
+              <CardContent>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                  <WarningAmberIcon color="warning" />
+                  <Typography variant="h6" fontWeight="600">
+                    Urgent Alerts
+                  </Typography>
+                  <Chip
+                    label={urgentAlerts?.length || 0}
+                    size="small"
+                    color="warning"
+                    sx={{ ml: "auto" }}
+                  />
+                </Stack>
+
+                {loading ? (
+                  <Stack spacing={2}>
+                    {[1, 2].map((i) => (
+                      <Skeleton key={i} variant="rectangular" height={80} sx={{ borderRadius: "12px" }} />
+                    ))}
+                  </Stack>
+                ) : urgentAlerts && urgentAlerts.length > 0 ? (
+                  <Stack spacing={2}>
+                    {urgentAlerts.map((alert, index) => (
+                      <Alert
+                        key={index}
+                        severity="warning"
+                        sx={{ borderRadius: "12px" }}
+                      >
+                        <Typography variant="subtitle2" fontWeight="600">
+                          {alert.title}
+                        </Typography>
+                        <Typography variant="body2">{alert.message}</Typography>
+                      </Alert>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Box
                     sx={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "primary.main",
+                      textAlign: "center",
+                      py: 6,
+                      color: "text.secondary",
                     }}
                   >
-                    Go to Users
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "#459e7e9e",
-                    }}
-                  >
-                    Mange Portal Access
-                  </Typography>
-                </Box>
-              </Stack>
-              <ArrowForwardIosOutlinedIcon sx={{ color: "primary.main" }} />
-            </Stack>
-            <Stack
-              direction={"row"}
-              sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "white",
-                border: "2px solid #52AC8C",
-                borderRadius: "20px",
-                padding: "15px",
-                mb: "20px",
-              }}
-            >
-              <Stack direction={"row"} spacing={1}>
-                <PersonSearchOutlinedIcon
-                  sx={{ width: "44px", height: "44px", color: "primary.main" }}
-                />
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "primary.main",
-                    }}
-                  >
-                    Go to Users
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "16px",
-                      fontWeight: 400,
-                      color: "#459e7e9e",
-                    }}
-                  >
-                    Mange Portal Access
-                  </Typography>
-                </Box>
-              </Stack>
-              <ArrowForwardIosOutlinedIcon sx={{ color: "primary.main" }} />
-            </Stack>
-            <Stack
-              sx={{
-                justifyContent: "center",
-                alignItems: "center",
-                background: "white",
-                borderRadius: "20px",
-                padding: "20px",
-                textAlign: "center",
-              }}
-            >
-              <Avatar
-                sx={{
-                  bgcolor: "#616161",
-                  width: 40,
-                  height: 40,
-                }}
-              >
-                !
-              </Avatar>
-              <Typography
-                sx={{ fontSize: "20px", fontWeight: "400", color: "#616161" }}
-              >
-                No critical alerts detection in
-                <br /> the last 24 hours
+                    <WarningAmberIcon sx={{ fontSize: 48, opacity: 0.3, mb: 2 }} />
+                    <Typography variant="body1">No urgent alerts at this time</Typography>
+                    <Typography variant="caption">All patients are stable</Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Recent Patients Table */}
+        <Card
+          sx={{
+            mt: 3,
+            borderRadius: "16px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          }}
+        >
+          <CardContent>
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
+              <PeopleAltIcon color="primary" />
+              <Typography variant="h6" fontWeight="600">
+                Recent Patients
               </Typography>
             </Stack>
-          </Box>
-        </Stack>
+
+            {loading ? (
+              <Skeleton variant="rectangular" height={300} sx={{ borderRadius: "12px" }} />
+            ) : recentPatients && recentPatients.length > 0 ? (
+              <TableContainer
+                component={Paper}
+                elevation={0}
+                sx={{
+                  borderRadius: "12px",
+                  border: "1px solid #E0E0E0",
+                }}
+              >
+                <Table>
+                  <TableHead sx={{ backgroundColor: "#F8F9FA" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Patient</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Age/Gender</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Contact</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Current Condition</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Last Visit</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentPatients.map((patient, index) => (
+                      <TableRow
+                        key={patient.patientId || index}
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: "#F8F9FA",
+                          },
+                          transition: "background-color 0.2s ease",
+                        }}
+                      >
+                        <TableCell>
+                          <Stack direction="row" spacing={2} alignItems="center">
+                            <Avatar src={patient.image} sx={{ width: 40, height: 40 }}>
+                              {patient.name?.charAt(0)}
+                            </Avatar>
+                            <Box>
+                              <Typography variant="subtitle2" fontWeight="600">
+                                {patient.name}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                ID: {patient.patientId?.slice(0, 8)}...
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">
+                            {patient.age} years
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {patient.gender}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">{patient.phoneNumber}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {patient.email}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              maxWidth: 250,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {patient.currentCondition || "N/A"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2">
+                            {formatDate(patient.lastAppointmentDate)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={patient.status}
+                            size="small"
+                            color={
+                              patient.status === "Active"
+                                ? "success"
+                                : patient.status === "Inactive"
+                                ? "default"
+                                : "warning"
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  py: 6,
+                  color: "text.secondary",
+                }}
+              >
+                <PeopleAltIcon sx={{ fontSize: 48, opacity: 0.3, mb: 2 }} />
+                <Typography variant="body1">No recent patients to display</Typography>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Footer */}
-        <Grid
-          container
-          justifyContent="space-between"
-          alignItems="center"
+        <Box
           sx={{
             mt: 4,
             py: 2,
-            borderTop: "1px solid #e0e0e0",
-            color: "#666",
+            textAlign: "center",
+            color: "text.secondary",
           }}
         >
-          <Grid item>
-            <Typography variant="body2">
-              2024 HEALTHCARE ADMIN PORTAL | V 2.4.0
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Grid container spacing={2}>
-              <Grid item>
-                <Typography variant="body2">DOCUMENTATION</Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="body2">PRIVACY POLICY</Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="body2">SYSTEM HEALTH STATUS</Typography>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+          <Typography variant="caption">
+            © 2026 DoctorMate | Your Digital Healthcare Partner
+          </Typography>
+        </Box>
       </Box>
     </Stack>
   );

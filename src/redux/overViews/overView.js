@@ -1,77 +1,59 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../utils/api";
 
-// ========================== overViewSec2 profile ==========================
-export const overViewSec2 = createAsyncThunk(
-  "overView/overViewSec2",
+// ========================== fetchDoctorDashboard ==========================
+export const fetchDoctorDashboard = createAsyncThunk(
+  "overView/fetchDoctorDashboard",
   async (_, { rejectWithValue }) => {
     try {
-      //const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://doctormate.runasp.net/api/admin/dashboard/overview",
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjVkODFiMi0yNjU3LTQ1OTItOTFkMy0xZWNjYTg3NzkwZDgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImVtYWlsIjoiYWhtZWQuYWRtaW5AZG9jdG9ybWF0ZS5jb20iLCJQaG9uZU51bWJlciI6IisyMDEyMzQ1Njc4OTAiLCJpc3MiOiJEb2N0b3JNYXRlQVBJIiwiYXVkIjoiRG9jdG9yTWF0ZUNsaWVudCJ9.ej2zuoVW9rt4JNLAnDKTD7VK6f6VqkdOUmkqHxWzEkU`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("response.data = ", response.data);
-      return response.data;
+      const response = await api.get("/doctor/dashboard");
+      console.log("Doctor Dashboard Data:", response.data);
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "فشل في استكمال بيانات الحساب"
+        error.response?.data?.message || "Failed to fetch dashboard data"
       );
     }
   }
 );
 
+// Keeping old action for backward compatibility
+export const overViewSec2 = fetchDoctorDashboard;
+
 // ========================== Slice ==========================
 const overView = createSlice({
   name: "overView",
   initialState: {
-    user: null,
+    stats: null,
+    todayAppointments: [],
+    recentPatients: [],
+    urgentAlerts: [],
     loading: false,
     error: null,
-    // forgotPasswordEmail: {
-    //   email: "",
-    //   forgotPass: false,
-    // },
   },
-  //   reducers: {
-  //     clearAuthError: (state) => {
-  //       state.error = "";
-  //     },
-  //     setForgotPasswordEmail: (state, action) => {
-  //       state.forgotPasswordEmail = action.payload;
-  //     },
-  //     clearForgotPasswordEmail: (state) => {
-  //       state.forgotPasswordEmail = {
-  //         email: "",
-  //         forgotPass: false,
-  //       };
-  //     },
-  //   },
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
-    // fetch user
     builder
-      .addCase(overViewSec2.pending, (state) => {
+      .addCase(fetchDoctorDashboard.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(overViewSec2.fulfilled, (state, action) => {
+      .addCase(fetchDoctorDashboard.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.stats = action.payload.stats;
+        state.todayAppointments = action.payload.todayAppointments || [];
+        state.recentPatients = action.payload.recentPatients || [];
+        state.urgentAlerts = action.payload.urgentAlerts || [];
       })
-      .addCase(overViewSec2.rejected, (state, action) => {
+      .addCase(fetchDoctorDashboard.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
-// export const {
-//   clearAuthError,
-//   setForgotPasswordEmail,
-//   clearForgotPasswordEmail,
-// } = authSlice.actions;
+export const { clearError } = overView.actions;
 export default overView.reducer;

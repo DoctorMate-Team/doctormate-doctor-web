@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addPrescriptions } from "../../../redux/schedule/addpresipration";
+import { getAppDetById } from "../../../redux/schedule/appoinmantDetals";
 import Modal from "@mui/material/Modal";
 import {
   Stack,
@@ -36,9 +37,11 @@ export default function AddPrescription({
   setopenAddPrescription,
 }) {
   const [openSnack, setOpenSnack] = useState(false);
+  const [openSuccessSnack, setOpenSuccessSnack] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, data } = useSelector((state) => state.prescriptions);
   const diagnosisId = useSelector((state) => state.diagnoses.data);
+  const selectedPatient = useSelector((state) => state.schedule.selectedPatient);
   //State for medications
   const [medications, setMedications] = useState([
     {
@@ -119,6 +122,9 @@ export default function AddPrescription({
           })),
         })
       ).unwrap();
+      // Refresh appointment details
+      await dispatch(getAppDetById({ id: selectedPatient?.id }));
+      setOpenSuccessSnack(true);
       handleClose();
     } catch (error) {
       console.log("Error:", error);
@@ -414,6 +420,20 @@ useEffect(() => {
           sx={{ width: "100%" }}
         >
           You must add a diagnosis before adding a prescription.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openSuccessSnack}
+        autoHideDuration={3000}
+        onClose={() => setOpenSuccessSnack(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setOpenSuccessSnack(false)}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Prescription added successfully!
         </Alert>
       </Snackbar>
     </div>

@@ -1,25 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../../utils/api";
 
-// ========================== overViewSec2 profile ==========================
+// ========================== fetchPatients ==========================
 export const patientsList = createAsyncThunk(
   "patients/patientsList",
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10, search = "" } = {}, { rejectWithValue }) => {
     try {
-      //const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://doctormate.runasp.net/api/doctor/patients",
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjQxZjE1OS1hNDEzLTQ4Y2MtMGFiMy0wOGRlMWE1ZTMzYmQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEb2N0b3IiLCJlbWFpbCI6InVzZXIwQGV4YW1wbGUuY29tIiwiUGhvbmVOdW1iZXIiOiIwMTExOTc0ODk4IiwiaXNzIjoiRG9jdG9yTWF0ZUFQSSIsImF1ZCI6IkRvY3Rvck1hdGVDbGllbnQifQ.RNpRLwsFvOEyk49QLtUj9HS7EOlqNd6hpSM9RZDl2BQ`,
-          },
-        }
-      );
-      console.log("response.data = ", response.data);
+      const params = new URLSearchParams();
+      params.append("page", page);
+      params.append("limit", limit);
+      if (search) {
+        params.append("search", search);
+      }
+      
+      const response = await api.get(`/doctor/patients?${params.toString()}`);
+      console.log("Patients Data:", response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "فشل في استكمال بيانات الحساب"
+        error.response?.data?.message || "Failed to fetch patients"
       );
     }
   }
@@ -29,9 +28,20 @@ export const patientsList = createAsyncThunk(
 const patients = createSlice({
   name: "patients",
   initialState: {
-    patients: {},
+    patients: [],
+    pagination: {
+      page: 1,
+      limit: 10,
+      totalItems: 0,
+      totalPages: 0,
+    },
     loading: false,
     error: null,
+  },
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     // fetch user
@@ -42,7 +52,8 @@ const patients = createSlice({
       })
       .addCase(patientsList.fulfilled, (state, action) => {
         state.loading = false;
-        state.patients = action.payload;
+        state.patients = action.payload.data?.patients || [];
+        state.pagination = action.payload.data?.pagination || state.pagination;
       })
       .addCase(patientsList.rejected, (state, action) => {
         state.loading = false;
@@ -50,4 +61,6 @@ const patients = createSlice({
       });
   },
 });
+
+export const { clearError } = patients.actions;
 export default patients.reducer;
