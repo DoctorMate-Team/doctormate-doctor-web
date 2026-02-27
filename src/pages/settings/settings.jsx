@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { Snackbar, Alert } from "@mui/material";
 import NavBar from "../../components/navBar";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PersonIcon from "@mui/icons-material/Person";
@@ -197,7 +197,6 @@ export default function Settings() {
           padding: "20px",
           height: "100vh",
           overflowY: "auto",
-          overflowX: "hidden",
           flex: 1,
         }}
       >
