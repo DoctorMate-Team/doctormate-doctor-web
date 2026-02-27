@@ -123,7 +123,6 @@ export default function OverView() {
           padding: "20px",
           height: "100vh",
           overflowY: "auto",
-          overflowX: "hidden",
           flex: 1,
         }}
       >
