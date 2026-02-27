@@ -19,6 +19,7 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -80,6 +81,7 @@ const exams = [
 ];
 
 export default function Dicom() {
+  const navigate = useNavigate();
   return (
     <Stack direction="row">
       <NavBar />
@@ -313,7 +315,7 @@ export default function Dicom() {
                     {exam.size}
                   </TableCell>
                   <TableCell>
-                    <IconButton size="small" sx={{ color: "primary.main" }}>
+                    <IconButton size="small" sx={{ color: "primary.main" }} onClick={() => navigate(`/dicom/imageViwer`)}>
                       <VisibilityIcon />
                     </IconButton>
                     <IconButton size="small" sx={{ color: "primary.main" }}>

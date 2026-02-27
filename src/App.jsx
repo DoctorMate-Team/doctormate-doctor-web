@@ -48,8 +48,8 @@ function App() {
         
         {/* Protected Routes */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
-        <Route path="/patients/patientlist" element={<ProtectedRoute><PatientList /></ProtectedRoute>} />
+        <Route path="/patientlist/patient" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
+        <Route path="/patientlist" element={<ProtectedRoute><PatientList /></ProtectedRoute>} />
         <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
         <Route path="/schedule/appointmentsdetails/details" element={<ProtectedRoute><Details1 /></ProtectedRoute>} />
         <Route path="/medicalimaging" element={<ProtectedRoute><MedicalImaging /></ProtectedRoute>} />
