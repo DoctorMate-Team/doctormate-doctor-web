@@ -1,21 +1,19 @@
 import React from "react";
 import {
   Box,
-  Container,
   Grid,
   Paper,
   Typography,
   TextField,
   InputAdornment,
-  IconButton,
   Avatar,
   Card,
-  CardContent,
   useTheme,
   alpha,
   Stack,
   Divider,
 } from "@mui/material";
+import { useEffect } from "react";
 import {
   Search as SearchIcon,
   Notifications as NotificationsIcon,
@@ -30,13 +28,14 @@ import NavBar from "../../components/navBar";
 import CircleIcon from "@mui/icons-material/Circle";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import GroupsIcon from "@mui/icons-material/Groups";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getReport } from "../../redux/doctor/report";
+import { getDataDoctor } from "../../redux/doctor/doctor";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
@@ -141,8 +140,14 @@ const StatCard = ({ title, value, percentage, icon, color }) => {
 };
 
 export default function Reports() {
+  const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.report);
   const theme = useTheme();
   const { user } = useSelector((state) => state.doctor);
+  useEffect(() => {
+    dispatch(getReport());
+    dispatch(getDataDoctor());
+  }, []);
   return (
     <Stack direction="row">
       <NavBar />
@@ -217,7 +222,7 @@ export default function Reports() {
                   sx={{ bgcolor: "primary.main", width: 40, height: 40 }}
                   src={user?.data?.imageUrl}
                 >
-                  {user?.data?.imageUrl? "" : <PersonIcon />}
+                  {user?.data?.imageUrl ? "" : <PersonIcon />}
                 </Avatar>
               </Stack>
             </Stack>

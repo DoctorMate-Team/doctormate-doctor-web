@@ -52,7 +52,7 @@ import {
   GridView,
   ViewList,
 } from "@mui/icons-material";
-
+import { setSelectedPatient } from "../../redux/schedule/schedule";
 export default function DicomViewer() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,8 +63,8 @@ export default function DicomViewer() {
   const [contrast, setContrast] = useState(100);
   const [inverted, setInverted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [tool, setTool] = useState('pan');
-  const [viewMode, setViewMode] = useState('grid');
+  const [tool, setTool] = useState("pan");
+  const [viewMode, setViewMode] = useState("grid");
   const imageRef = useRef(null);
 
   // Get images from navigation state or use default
@@ -91,34 +91,40 @@ export default function DicomViewer() {
   };
 
   // Convert DICOM images to the format expected by the viewer
-  const images = receivedImages.length > 0
-    ? [dicomFile, ...receivedImages.map(img => ({
-        src: img.viewerUrl,
-        thumbnail: img.viewerUrl,
-        description: img.description || img.fileName,
-        type: img.type,
-        uploadDate: img.uploadDate,
-      }))]
-    : [
-        dicomFile,
-        {
-          src: "/assets/imageView/image 1.png",
-          thumbnail: "/assets/imageView/image 2.png",
-          description: "Sample Medical Image 1",
-          type: "X-Ray",
-        },
-        {
-          src: "/assets/imageView/image 3.png",
-          thumbnail: "/assets/imageView/image 3.png",
-          description: "Sample Medical Image 2",
-          type: "MRI",
-        },
-      ];
+  const images =
+    receivedImages.length > 0
+      ? [
+          dicomFile,
+          ...receivedImages.map((img) => ({
+            src: img.viewerUrl,
+            thumbnail: img.viewerUrl,
+            description: img.description || img.fileName,
+            type: img.type,
+            uploadDate: img.uploadDate,
+          })),
+        ]
+      : [
+          dicomFile,
+          {
+            src: "/assets/imageView/image 1.png",
+            thumbnail: "/assets/imageView/image 2.png",
+            description: "Sample Medical Image 1",
+            type: "X-Ray",
+          },
+          {
+            src: "/assets/imageView/image 3.png",
+            thumbnail: "/assets/imageView/image 3.png",
+            description: "Sample Medical Image 2",
+            type: "MRI",
+          },
+        ];
 
   // Set initial image based on selected image
   useEffect(() => {
     if (selectedImage && receivedImages.length > 0) {
-      const index = receivedImages.findIndex(img => img.id === selectedImage.id);
+      const index = receivedImages.findIndex(
+        (img) => img.id === selectedImage.id
+      );
       if (index !== -1) {
         setCurrentImage(index + 1); // +1 because we added dicomFile at beginning
       }
@@ -162,7 +168,7 @@ export default function DicomViewer() {
   };
 
   const handleInvert = () => {
-    setInverted(prev => !prev);
+    setInverted((prev) => !prev);
   };
 
   const toggleFullscreen = () => {
@@ -177,12 +183,20 @@ export default function DicomViewer() {
 
   const getImageStyle = () => ({
     transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-    filter: `brightness(${brightness}%) contrast(${contrast}%) ${inverted ? 'invert(1)' : ''}`,
-    transition: 'transform 0.3s ease, filter 0.3s ease',
+    filter: `brightness(${brightness}%) contrast(${contrast}%) ${
+      inverted ? "invert(1)" : ""
+    }`,
+    transition: "transform 0.3s ease, filter 0.3s ease",
   });
 
   return (
-    <Box sx={{ bgcolor: "#F5F7FA", minHeight: "100vh", p: { xs: 2, sm: 3, md: 4 } }}>
+    <Box
+      sx={{
+        bgcolor: "#F5F7FA",
+        minHeight: "100vh",
+        p: { xs: 2, sm: 3, md: 4 },
+      }}
+    >
       {/* Enhanced Header with Gradient */}
       <Fade in timeout={400}>
         <Card
@@ -271,285 +285,358 @@ export default function DicomViewer() {
 
       {/* Main Viewer Area */}
       <Fade in timeout={600}>
-        <Grid container spacing={{ xs: 2, md: 3 }}>
-          {/* Left Sidebar - Thumbnails */}
-          <Grid item xs={12} sm={12} md={3} lg={2.5}>
-            <Card
-              sx={{
-                borderRadius: "16px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                height: "100%",
-                minHeight: { xs: "auto", md: "calc(100vh - 280px)" },
-                maxHeight: { xs: "400px", md: "calc(100vh - 280px)" },
-                overflow: "hidden",
-              }}
-            >
-              <Box
-                sx={{
-                  background: "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
-                  p: { xs: 2, md: 2.5 },
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={700}
-                  color="white"
-                  sx={{ mb: 1, fontSize: { xs: "14px", md: "16px" } }}
-                >
-                  Image Series
-                </Typography>
-                <Stack direction="row" spacing={1} justifyContent="center">
-                  <IconButton
-                    onClick={handlePrevious}
-                    size="small"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
-                      "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                    }}
-                  >
-                    <ChevronLeft />
-                  </IconButton>
-                  <Typography
-                    variant="body2"
-                    color="white"
-                    sx={{ display: "flex", alignItems: "center", px: 1 }}
-                  >
-                    {currentImage + 1} / {images.length}
-                  </Typography>
-                  <IconButton
-                    onClick={handleNext}
-                    size="small"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
-                      "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                    }}
-                  >
-                    <ChevronRight />
-                  </IconButton>
-                </Stack>
-              </Box>
-
-              <Box
-                sx={{
-                  p: { xs: 2, md: 2.5 },
-                  maxHeight: { xs: "300px", md: "calc(100vh - 420px)" },
-                  overflowY: "auto",
-                  "&::-webkit-scrollbar": { width: "8px" },
-                  "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
-                  "&::-webkit-scrollbar-thumb": {
-                    bgcolor: "primary.main",
-                    borderRadius: "4px",
-                  },
-                }}
-              >
-                <Stack spacing={{ xs: 1.5, md: 2 }}>
-                  {images.map((image, index) => (
-                    <Box
-                      key={index}
-                      onClick={() => handleThumbnailClick(index)}
-                      sx={{
-                        cursor: "pointer",
-                        border: currentImage === index ? "3px solid" : "2px solid transparent",
-                        borderColor: "primary.main",
-                        borderRadius: "12px",
-                        overflow: "hidden",
-                        transition: "all 0.3s ease",
-                        position: "relative",
-                        "&:hover": {
-                          transform: "scale(1.05)",
-                          boxShadow: "0 4px 12px rgba(82, 172, 140, 0.3)",
-                        },
-                      }}
-                    >
-                      <img
-                        src={image.thumbnail}
-                        alt={image.description}
-                        style={{
-                          width: "100%",
-                          height: "120px",
-                          objectFit: "cover",
-                          display: "block",
-                        }}
-                      />
-                      {currentImage === index && (
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: 4,
-                            right: 4,
-                            bgcolor: "primary.main",
-                            borderRadius: "50%",
-                            width: 24,
-                            height: 24,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Typography variant="caption" color="white" fontWeight={700}>
-                            ✓
-                          </Typography>
-                        </Box>
-                      )}
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          bgcolor: "rgba(0,0,0,0.6)",
-                          color: "white",
-                          p: 0.5,
-                          fontSize: "10px",
-                          textAlign: "center",
-                        }}
-                      >
-                        {index + 1}
-                      </Box>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
-            </Card>
-          </Grid>
-
-          {/* Center - Main Viewer */}
-          <Grid item xs={12} sm={12} md={6} lg={6.5}>
-            <Card
-              sx={{
-                borderRadius: "16px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                overflow: "hidden",
-                height: { xs: "500px", sm: "600px", md: "calc(100vh - 280px)" },
-                minHeight: { xs: "500px", md: "600px" },
-                position: "relative",
-              }}
-            >
-              <Box
-                ref={imageRef}
-                sx={{
-                  bgcolor: "#000",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src={images[currentImage].src}
-                  alt={images[currentImage].description}
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    ...getImageStyle(),
-                  }}
-                />
-
-                {/* Image Overlay Info */}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    background: "linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)",
-                    color: "white",
-                    p: 2,
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography variant="body2" fontWeight={600}>
-                      {images[currentImage].description}
-                    </Typography>
-                    <Chip
-                      label={`${zoom}%`}
-                      size="small"
-                      sx={{
-                        bgcolor: "rgba(255,255,255,0.2)",
-                        color: "white",
-                        backdropFilter: "blur(10px)",
-                      }}
-                    />
-                  </Stack>
-                </Box>
-
-                {/* Bottom Info */}
-                {images[currentImage].uploadDate && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
-                      color: "white",
-                      p: 2,
-                    }}
-                  >
-                    <Typography variant="caption">
-                      Uploaded: {new Date(images[currentImage].uploadDate).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                )}
-
-                {/* Fullscreen Toggle */}
-                <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
-                  <IconButton
-                    onClick={toggleFullscreen}
-                    sx={{
-                      position: "absolute",
-                      top: 16,
-                      right: 16,
-                      bgcolor: "rgba(0,0,0,0.6)",
-                      color: "white",
-                      "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
-                    }}
-                  >
-                    {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Card>
-          </Grid>
-
-          {/* Right Sidebar - Controls & Patient Info */}
-          <Grid item xs={12} sm={12} md={3} lg={3}>
-            <Stack spacing={{ xs: 2, md: 3 }}>
-              {/* Viewing Tools */}
+        <div>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
+            {/* Left Sidebar - Thumbnails */}
+            <Grid size={{ xs: 12, md: 3, lg: 2 }}>
               <Card
                 sx={{
                   borderRadius: "16px",
                   boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  width: "100%",
+                  minHeight: { xs: "auto", md: "calc(100vh - 138px)" },
+                  maxHeight: { xs: "auto", md: "calc(100vh - 280px)" },
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <CardContent sx={{ p: { xs: 2, md: 3 }, "&:last-child": { pb: { xs: 2, md: 3 } } }}>
+                {/* Header */}
+                <Box
+                  sx={{
+                    background:
+                      "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
+                    p: { xs: 2, md: 2.5 },
+                  }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={700}
+                    color="white"
+                    sx={{ mb: 1, fontSize: { xs: "14px", md: "16px" } }}
+                  >
+                    Image Series
+                  </Typography>
+
+                  <Stack direction="row" spacing={1} justifyContent="center">
+                    <IconButton
+                      onClick={handlePrevious}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                      }}
+                    >
+                      <ChevronLeft />
+                    </IconButton>
+
+                    <Typography
+                      variant="body2"
+                      color="white"
+                      sx={{ display: "flex", alignItems: "center", px: 1 }}
+                    >
+                      {currentImage + 1} / {images.length}
+                    </Typography>
+
+                    <IconButton
+                      onClick={handleNext}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                      }}
+                    >
+                      <ChevronRight />
+                    </IconButton>
+                  </Stack>
+                </Box>
+
+                {/* Thumbnails */}
+                <Box
+                  sx={{
+                    p: { xs: 2, md: 2.5 },
+
+                    // 📱 موبايل أفقي
+                    overflowX: { xs: "auto", md: "hidden" },
+                    overflowY: { xs: "hidden", md: "auto" },
+
+                    scrollSnapType: { xs: "x mandatory", md: "none" },
+
+                    "&::-webkit-scrollbar": {
+                      height: { xs: "6px", md: "8px" },
+                      width: { md: "8px" },
+                    },
+                    "&::-webkit-scrollbar-track": {
+                      bgcolor: "transparent",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      bgcolor: "primary.main",
+                      borderRadius: "4px",
+                    },
+                  }}
+                >
+                  <Stack direction={{ xs: "row", md: "column" }} spacing={2}>
+                    {images.map((image, index) => (
+                      <Box
+                        key={index}
+                        onClick={() => handleThumbnailClick(index)}
+                        sx={{
+                          cursor: "pointer",
+
+                          // 📱 عرض ثابت في الموبايل
+                          minWidth: { xs: 120, md: "100%" },
+                          maxWidth: { xs: 120, md: "100%" },
+
+                          scrollSnapAlign: "start",
+
+                          border:
+                            currentImage === index
+                              ? "3px solid"
+                              : "2px solid transparent",
+                          borderColor: "primary.main",
+                          borderRadius: "12px",
+                          overflow: "hidden",
+                          transition: "all 0.3s ease",
+                          position: "relative",
+                          "&:hover": {
+                            transform: "scale(1.05)",
+                            boxShadow: "0 4px 12px rgba(82, 172, 140, 0.3)",
+                          },
+                        }}
+                      >
+                        <img
+                          src={image.thumbnail}
+                          alt={image.description}
+                          style={{
+                            width: "100%",
+                            height: "120px",
+                            objectFit: "cover",
+                            display: "block",
+                          }}
+                        />
+
+                        {currentImage === index && (
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              top: 4,
+                              right: 4,
+                              bgcolor: "primary.main",
+                              borderRadius: "50%",
+                              width: 24,
+                              height: 24,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              color="white"
+                              fontWeight={700}
+                            >
+                              ✓
+                            </Typography>
+                          </Box>
+                        )}
+
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            bgcolor: "rgba(0,0,0,0.6)",
+                            color: "white",
+                            p: 0.5,
+                            fontSize: "10px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {index + 1}
+                        </Box>
+                      </Box>
+                    ))}
+                  </Stack>
+                </Box>
+              </Card>
+            </Grid>
+            {/* Center - Main Viewer */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card
+                sx={{
+                  borderRadius: "16px",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  overflow: "hidden",
+                  height: {
+                    xs: "500px",
+                    sm: "600px",
+                    md: "calc(100vh - 280px)",
+                  },
+                  minHeight: { xs: "500px", md: "600px" },
+                  position: "relative",
+                  width: "100%",
+                }}
+              >
+                <Box
+                  ref={imageRef}
+                  sx={{
+                    bgcolor: "#000",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src={images[currentImage].src}
+                    alt={images[currentImage].description}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      ...getImageStyle(),
+                    }}
+                  />
+
+                  {/* Image Overlay Info */}
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      background:
+                        "linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)",
+                      color: "white",
+                      p: 2,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography variant="body2" fontWeight={600}>
+                        {images[currentImage].description}
+                      </Typography>
+                      <Chip
+                        label={`${zoom}%`}
+                        size="small"
+                        sx={{
+                          bgcolor: "rgba(255,255,255,0.2)",
+                          color: "white",
+                          backdropFilter: "blur(10px)",
+                        }}
+                      />
+                    </Stack>
+                  </Box>
+
+                  {/* Bottom Info */}
+                  {images[currentImage].uploadDate && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
+                        color: "white",
+                        p: 2,
+                      }}
+                    >
+                      <Typography variant="caption">
+                        Uploaded:{" "}
+                        {new Date(
+                          images[currentImage].uploadDate
+                        ).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Fullscreen Toggle */}
+                  <Tooltip
+                    title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                  >
+                    <IconButton
+                      onClick={toggleFullscreen}
+                      sx={{
+                        position: "absolute",
+                        top: 16,
+                        right: 16,
+                        bgcolor: "rgba(0,0,0,0.6)",
+                        color: "white",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
+                      }}
+                    >
+                      {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Card>
+            </Grid>
+            {/* Controls */}
+            <Grid size={{ xs: 12, md: 3, lg: 4 }}>
+              <Card
+                sx={{
+                  borderRadius: "16px",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  width: "100%",
+                }}
+              >
+                <CardContent
+                  sx={{
+                    p: { xs: 2, md: 3 },
+                    "&:last-child": { pb: { xs: 2, md: 3 } },
+                  }}
+                >
                   <Typography
                     variant="subtitle2"
                     fontWeight={700}
                     color="primary.main"
-                    sx={{ mb: { xs: 2, md: 2.5 }, fontSize: { xs: "15px", md: "16px" } }}
+                    sx={{
+                      mb: { xs: 2, md: 2.5 },
+                      fontSize: { xs: "15px", md: "16px" },
+                    }}
                   >
                     Viewing Tools
                   </Typography>
 
                   {/* Zoom Controls */}
                   <Box sx={{ mb: { xs: 2.5, md: 3 } }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={1}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={600}
+                      >
                         Zoom: {zoom}%
                       </Typography>
                       <Stack direction="row" spacing={0.5}>
                         <Tooltip title="Zoom Out">
-                          <IconButton size="small" onClick={handleZoomOut} color="primary">
+                          <IconButton
+                            size="small"
+                            onClick={handleZoomOut}
+                            color="primary"
+                          >
                             <Remove fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Zoom In">
-                          <IconButton size="small" onClick={handleZoomIn} color="primary">
+                          <IconButton
+                            size="small"
+                            onClick={handleZoomIn}
+                            color="primary"
+                          >
                             <Add fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -566,11 +653,25 @@ export default function DicomViewer() {
 
                   {/* Brightness */}
                   <Box sx={{ mb: { xs: 2.5, md: 3 } }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ fontSize: { xs: "12px", md: "13px" } }}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={1}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: "12px", md: "13px" } }}
+                      >
                         Brightness
                       </Typography>
-                      <Typography variant="caption" color="primary.main" fontWeight={700}>
+                      <Typography
+                        variant="caption"
+                        color="primary.main"
+                        fontWeight={700}
+                      >
                         {brightness}%
                       </Typography>
                     </Stack>
@@ -585,11 +686,25 @@ export default function DicomViewer() {
 
                   {/* Contrast */}
                   <Box sx={{ mb: { xs: 2.5, md: 3 } }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ fontSize: { xs: "12px", md: "13px" } }}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={1}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={600}
+                        sx={{ fontSize: { xs: "12px", md: "13px" } }}
+                      >
                         Contrast
                       </Typography>
-                      <Typography variant="caption" color="primary.main" fontWeight={700}>
+                      <Typography
+                        variant="caption"
+                        color="primary.main"
+                        fontWeight={700}
+                      >
                         {contrast}%
                       </Typography>
                     </Stack>
@@ -613,7 +728,8 @@ export default function DicomViewer() {
                         textTransform: "none",
                         borderRadius: "10px",
                         ...(inverted && {
-                          background: "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
+                          background:
+                            "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
                         }),
                       }}
                     >
@@ -665,105 +781,149 @@ export default function DicomViewer() {
                   </Stack>
                 </CardContent>
               </Card>
+            </Grid>
+          </Grid>
+          {/* Patient Information */}
+          <Card
+            sx={{
+              borderRadius: "20px",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+              mt: 3,
+            }}
+          >
+            <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                color="primary.main"
+                sx={{ mb: 3 }}
+              >
+                Patient Information
+              </Typography>
 
-              {/* Patient Information */}
-              <Card
+              {/* <Grid container spacing={2}> */}
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
                 sx={{
-                  borderRadius: "16px",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                  justifyContent: "space-between",
+                  alignItems: { xs: "stretch", md: "center" },
+                  flexWrap: "wrap",
+                  gap: 3,
                 }}
               >
-                <CardContent sx={{ p: { xs: 2, md: 3 }, "&:last-child": { pb: { xs: 2, md: 3 } } }}>
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight={700}
-                    color="primary.main"
-                    sx={{ mb: { xs: 2, md: 2.5 }, fontSize: { xs: "15px", md: "16px" } }}
-                  >
-                    Patient Information
-                  </Typography>
-                  <Stack spacing={{ xs: 1.5, md: 2 }}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Person sx={{ color: "text.secondary", fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Name
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patientInfo.name}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <CakeOutlined sx={{ color: "#8bc34a", fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Age
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patientInfo.age} years
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Male sx={{ color: "#2196f3", fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Gender
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patientInfo.gender}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Bloodtype sx={{ color: "#f44336", fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Blood Type
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patientInfo.bloodType}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Badge sx={{ color: "#9c27b0", fontSize: 20 }} />
-                      <Box>
-                        <Typography variant="caption" color="text.secondary">
-                          Patient ID
-                        </Typography>
-                        <Typography variant="body2" fontWeight={600}>
-                          {patientInfo.patientId}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Stack>
-                  <Divider sx={{ my: 2 }} />
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    startIcon={<AccountCircle />}
+                {[
+                  {
+                    label: "Name",
+                    value: patientInfo.name,
+                    icon: <Person />,
+                    color: "#607d8b",
+                  },
+                  {
+                    label: "Age",
+                    value: `${patientInfo.age} years`,
+                    icon: <CakeOutlined />,
+                    color: "#8bc34a",
+                  },
+                  {
+                    label: "Gender",
+                    value: patientInfo.gender,
+                    icon: <Male />,
+                    color: "#2196f3",
+                  },
+                  {
+                    label: "Blood Type",
+                    value: patientInfo.bloodType,
+                    icon: <Bloodtype />,
+                    color: "#f44336",
+                  },
+                  {
+                    label: "Patient ID",
+                    value: patientInfo.patientId,
+                    icon: <Badge />,
+                    color: "#9c27b0",
+                  },
+                ].map((item, index) => (
+                  <Card
+                    key={index}
                     sx={{
-                      textTransform: "none",
-                      background: "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
-                      borderRadius: "10px",
-                      py: 1.5,
-                      fontWeight: 600,
-                      boxShadow: "0 4px 12px rgba(82, 172, 140, 0.3)",
+                      width: "200px", // ✅ عرض ثابت
+                      minWidth: "200px",
+                      borderRadius: "16px",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      transition: "all 0.3s ease",
+                      flexShrink: 0, // ✅ يمنع الانكماش
                       "&:hover": {
-                        background: "linear-gradient(135deg, #3D8B6F 0%, #2E6B55 100%)",
-                        boxShadow: "0 6px 16px rgba(82, 172, 140, 0.4)",
+                        transform: "translateY(-4px)",
+                        boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
                       },
                     }}
                   >
-                    View Patient Profile
-                  </Button>
-                </CardContent>
-              </Card>
-            </Stack>
-          </Grid>
-        </Grid>
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 45,
+                          height: 45,
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          bgcolor: item.color + "20",
+                          color: item.color,
+                        }}
+                      >
+                        {item.icon}
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          {item.label}
+                        </Typography>
+                        <Typography variant="body1" fontWeight={600}>
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+              {/* </Grid> */}
+
+              <Divider sx={{ my: 3 }} />
+
+              <Button
+                onClick={() => {
+                  navigate("/patientlist/patient");
+                }}
+                fullWidth
+                variant="contained"
+                sx={{
+                  color: "white",
+                  textTransform: "none",
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: 500,
+                  fontSize: "24px",
+                  background:
+                    "linear-gradient(135deg, #52AC8C 0%, #3D8B6F 100%)",
+                  boxShadow: "0 6px 18px rgba(82, 172, 140, 0.3)",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(135deg, #3D8B6F 0%, #2E6B55 100%)",
+                  },
+                }}
+              >
+                View Patient Profile
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </Fade>
     </Box>
   );

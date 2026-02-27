@@ -9,13 +9,13 @@ import medicalReducer from "./schedule/addMedicaql";
 import diagnosesReducer from "./schedule/addDiagnoses";
 import prescriptionsReducer from "./schedule/addpresipration";
 import patientdetReducer from "./schedule/appoinmantDetals";
-//import { clearAuthError } from './authSlice'
+import getRportReducer from "./doctor/report";
 
 export const store = configureStore({
   reducer: {
     overView: overViewReducer,
     auth: authSlice,
-    schedule: schuduleReducer, 
+    schedule: schuduleReducer,
     profile: profileManagementrReducer,
     doctor: doctorReducer,
     patients: patientsListReducer,
@@ -23,5 +23,6 @@ export const store = configureStore({
     diagnoses: diagnosesReducer,
     prescriptions: prescriptionsReducer,
     patientdet: patientdetReducer,
+    report: getRportReducer,
   },
 });

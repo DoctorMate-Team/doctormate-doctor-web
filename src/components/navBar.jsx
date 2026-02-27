@@ -57,10 +57,9 @@ export default function NavBar() {
   return (
     <Box
       sx={{
-        width: isOpen ? "210px" : "70px",
+        width: { xs: "70px", sm: isOpen ? "210px" : "70px" },
         height: "100vh",
         backgroundColor: "primary.main",
-        // position: "fixed",
         left: 0,
         top: 0,
         display: "flex",
@@ -189,7 +188,7 @@ export default function NavBar() {
         </Tooltip>
         <Tooltip title={!isOpen ? "Patients" : ""} placement="right">
           <Link
-            to="/patients/patientlist"
+            to="/patientlist"
             style={{ textDecoration: "none", width: "100%" }}
           >
             <Stack
@@ -202,17 +201,17 @@ export default function NavBar() {
               }}
             >
               <Box
-                sx={activeIndicatorStyles(pathname === "/patients/patientlist")}
+                sx={activeIndicatorStyles(pathname.includes("/patientlist"))}
               />
 
               <Stack
                 direction={"row"}
                 spacing={1}
-                sx={menuItemStyles(pathname === "/patients/patientlist")}
+                sx={menuItemStyles(pathname.includes("/patientlist"))}
               >
                 <img
                   src={
-                    pathname === "/patients/patientlist"
+                    pathname.includes("/patientlist")
                       ? "/assets/navBar/Group (4).png"
                       : "/assets/navBar/Group (3).png"
                   }
@@ -222,10 +221,9 @@ export default function NavBar() {
                 {isOpen && (
                   <Typography
                     sx={{
-                      color:
-                        pathname === "/patients/patientlist"
-                          ? "primary.main"
-                          : "white",
+                      color: pathname.includes("/patientlist")
+                        ? "primary.main"
+                        : "white",
                       fontSize: "22.27px",
                       fontWeight: "400",
                     }}
